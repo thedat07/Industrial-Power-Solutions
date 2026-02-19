@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #0f172a; /* slate-900 */
+  --color-accent: #f97316;  /* orange-500 */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-slate-900 antialiased;
+  }
+}
+
+.industrial-grid {
+  background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.markdown-body h1 { @apply text-3xl font-black mb-6 uppercase tracking-tighter text-slate-900; }
+.markdown-body h2 { @apply text-2xl font-black mb-4 uppercase tracking-tight mt-10 text-slate-900; }
+.markdown-body h3 { @apply text-xl font-black mb-3 uppercase tracking-tight mt-8 text-slate-800; }
+.markdown-body p { @apply text-slate-600 leading-relaxed mb-6 font-medium; }
+.markdown-body ul { @apply list-disc ml-6 mb-6 space-y-3 text-slate-600 font-medium; }
+.markdown-body li { @apply pl-2; }
+.markdown-body strong { @apply font-black text-slate-900; }
+.markdown-body blockquote { @apply border-l-4 border-accent pl-6 italic text-slate-700 my-8 font-bold; }

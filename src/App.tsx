@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 import { Navbar, Footer } from './components/Layout';
 import { Home } from './pages/Home';
+import { AboutUs } from './pages/AboutUs';
 import { Products, ProductDetail } from './pages/Products';
 import { Manufacturing } from './pages/Manufacturing';
 import { Applications, ApplicationDetail } from './pages/Applications';
@@ -39,6 +40,7 @@ export default function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/gioi-thieu" element={<AboutUs />} />
             <Route path="/san-pham" element={<Products />} />
             <Route path="/san-pham/:slug" element={<ProductDetailWrapper />} />
             <Route path="/nang-luc" element={<Manufacturing />} />

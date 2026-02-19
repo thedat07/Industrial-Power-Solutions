@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, ArrowRight, Activity, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Activity, AlertTriangle, Zap } from 'lucide-react';
 import { JsonLd } from '@/src/components/SEO';
 
 export function Applications() {
@@ -12,27 +12,27 @@ export function Applications() {
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24">
-      <section className="bg-white border-b border-slate-200 py-16">
+      <section className="bg-white border-b border-slate-200 py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-6">Giải pháp điện công nghiệp theo ngành</h1>
-          <p className="text-lg text-slate-600 max-w-3xl">
-            IPS cung cấp các giải pháp ổn định nguồn điện chuyên sâu, được thiết kế riêng cho từng đặc thù ngành nghề sản xuất và hạ tầng.
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-8 uppercase tracking-tighter">Giải pháp điện công nghiệp theo ngành</h1>
+          <p className="text-xl text-slate-600 max-w-3xl font-medium leading-relaxed">
+            IPS cung cấp các giải pháp ổn định nguồn điện chuyên sâu, được thiết kế riêng cho từng đặc thù ngành nghề sản xuất, từ nhà máy cơ khí đến hạ tầng trạm sạc xe điện.
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {apps.map((app) => (
-            <Link key={app.id} to={`/ung-dung/${app.slug}`} className="group bg-white border border-slate-200 rounded-3xl overflow-hidden hover:shadow-2xl transition-all flex flex-col">
+            <Link key={app.id} to={`/ung-dung/${app.slug}`} className="group bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all flex flex-col shadow-sm">
               <div className="aspect-video overflow-hidden">
-                <img src={app.image_url} alt={app.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
+                <img src={app.image_url} alt={app.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" referrerPolicy="no-referrer" />
               </div>
-              <div className="p-10 flex-grow">
-                <h2 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors">{app.title}</h2>
-                <p className="text-slate-600 mb-8 line-clamp-2">{app.problem}</p>
-                <div className="flex items-center gap-2 text-emerald-600 font-bold text-sm">
-                  Xem giải pháp chi tiết <ArrowRight className="h-4 w-4" />
+              <div className="p-12 flex-grow">
+                <h2 className="text-3xl font-black text-slate-900 mb-6 group-hover:text-accent transition-colors uppercase tracking-tight">{app.title}</h2>
+                <p className="text-slate-500 mb-10 line-clamp-2 font-medium leading-relaxed">{app.problem}</p>
+                <div className="flex items-center gap-2 text-accent font-black text-xs uppercase tracking-widest">
+                  Xem giải pháp kỹ thuật chi tiết <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
             </Link>
@@ -67,39 +67,40 @@ export function ApplicationDetail({ slug }: { slug: string }) {
         ]
       }} />
 
-      <section className="bg-slate-900 py-24 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-primary py-24 text-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-bold mb-8">{app.title}</h1>
-            <p className="text-xl text-slate-400 leading-relaxed">{app.problem}</p>
+            <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter">{app.title}</h1>
+            <p className="text-xl text-slate-400 leading-relaxed font-medium">{app.problem}</p>
           </div>
         </div>
+        <Zap className="absolute -right-20 -bottom-20 h-96 w-96 text-white/5 rotate-12" />
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-          <div className="lg:col-span-2 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
+          <div className="lg:col-span-8 space-y-20">
             {/* Problem Section */}
             <section>
-              <h2 className="text-3xl font-bold text-slate-900 mb-8 flex items-center gap-3">
-                <AlertTriangle className="h-8 w-8 text-red-500" /> Vấn đề thường gặp
+              <h2 className="text-3xl font-black text-slate-900 mb-10 flex items-center gap-3 uppercase tracking-tighter">
+                <AlertTriangle className="h-8 w-8 text-accent" /> Vấn đề thường gặp
               </h2>
-              <div className="bg-red-50 border-l-4 border-red-500 p-8 rounded-r-2xl">
-                <p className="text-lg text-red-900 leading-relaxed">{app.problem}</p>
+              <div className="bg-slate-50 border-l-8 border-accent p-10 rounded-r-[2.5rem]">
+                <p className="text-xl text-slate-900 leading-relaxed font-bold italic">"{app.problem}"</p>
               </div>
             </section>
 
             {/* Solution Section */}
             <section>
-              <h2 className="text-3xl font-bold text-slate-900 mb-8 flex items-center gap-3">
-                <ShieldCheck className="h-8 w-8 text-emerald-600" /> Giải pháp đề xuất từ IPS
+              <h2 className="text-3xl font-black text-slate-900 mb-10 flex items-center gap-3 uppercase tracking-tighter">
+                <ShieldCheck className="h-8 w-8 text-accent" /> Giải pháp đề xuất từ IPS
               </h2>
-              <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed">
-                <p className="text-lg">{app.solution}</p>
-                <div className="mt-8 p-8 bg-slate-50 rounded-2xl border border-slate-100">
-                  <h4 className="font-bold text-slate-900 mb-4">Sản phẩm đề xuất:</h4>
-                  <Link to="/san-pham?cat=may-bien-ap-3-pha" className="inline-flex items-center gap-2 text-emerald-600 font-bold hover:underline">
-                    Máy biến áp 3 pha IPS <ArrowRight className="h-4 w-4" />
+              <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed font-medium">
+                <p className="text-xl mb-12">{app.solution}</p>
+                <div className="p-10 bg-primary text-white rounded-[2.5rem] border border-white/10 shadow-2xl">
+                  <h4 className="text-accent font-black uppercase text-xs tracking-widest mb-6">Thiết bị đề xuất:</h4>
+                  <Link to="/san-pham?cat=may-bien-ap-3-pha" className="inline-flex items-center gap-3 text-2xl font-black hover:text-accent transition-colors uppercase tracking-tight">
+                    Máy biến áp 3 pha IPS <ArrowRight className="h-6 w-6" />
                   </Link>
                 </div>
               </div>
@@ -107,35 +108,34 @@ export function ApplicationDetail({ slug }: { slug: string }) {
 
             {/* Diagram */}
             <section>
-              <h2 className="text-3xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+              <h2 className="text-3xl font-black text-slate-900 mb-10 flex items-center gap-3 uppercase tracking-tighter">
                 <Activity className="h-8 w-8 text-slate-400" /> Sơ đồ lắp đặt tiêu chuẩn
               </h2>
-              <div className="bg-slate-100 rounded-3xl overflow-hidden border border-slate-200">
+              <div className="bg-slate-50 rounded-[3rem] overflow-hidden border-2 border-slate-100 shadow-2xl">
                 <img src={app.diagram_url} alt="Sơ đồ kỹ thuật" className="w-full" referrerPolicy="no-referrer" />
               </div>
             </section>
           </div>
 
           {/* Sidebar */}
-          <aside className="space-y-8">
-            <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl shadow-slate-100">
-              <h3 className="text-xl font-bold text-slate-900 mb-6">Nhận tư vấn giải pháp</h3>
-              <form className="space-y-4">
-                <input type="text" placeholder="Tên của bạn" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-emerald-500" />
-                <input type="tel" placeholder="Số điện thoại" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-emerald-500" />
-                <textarea placeholder="Mô tả hiện trạng điện..." className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-emerald-500" rows={4}></textarea>
-                <button className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all">Gửi yêu cầu ngay</button>
+          <aside className="lg:col-span-4 space-y-8">
+            <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-10 shadow-2xl shadow-slate-200/50 sticky top-32">
+              <h3 className="text-xl font-black text-slate-900 mb-8 uppercase tracking-tight">Tư vấn giải pháp</h3>
+              <form className="space-y-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Tên của bạn</label>
+                  <input type="text" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-accent font-bold" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Số điện thoại</label>
+                  <input type="tel" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-accent font-bold" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mô tả hiện trạng điện</label>
+                  <textarea className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-accent font-bold" rows={4}></textarea>
+                </div>
+                <button className="w-full py-5 bg-accent text-white rounded-xl font-black text-sm uppercase tracking-widest hover:brightness-110 transition-all shadow-xl shadow-orange-900/20">Gửi yêu cầu ngay</button>
               </form>
-            </div>
-
-            <div className="bg-slate-900 rounded-3xl p-8 text-white">
-              <h3 className="text-xl font-bold mb-6">Dự án tương tự</h3>
-              <div className="space-y-4">
-                <Link to="/cong-trinh" className="block p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all">
-                  <div className="text-xs text-emerald-400 font-bold mb-1">Nhà máy nhựa</div>
-                  <div className="text-sm font-bold">Trạm biến áp 1000kVA Hưng Yên</div>
-                </Link>
-              </div>
             </div>
           </aside>
         </div>

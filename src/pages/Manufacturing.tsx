@@ -9,34 +9,35 @@ export function Manufacturing() {
   }, []);
 
   return (
-    <div className="pb-24">
+    <div className="pb-24 bg-white">
       {/* Hero */}
-      <section className="bg-slate-900 py-24 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-primary py-24 text-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-bold mb-8">Năng lực sản xuất & <span className="text-emerald-500">Quy trình chất lượng</span></h1>
-            <p className="text-xl text-slate-400 leading-relaxed">
-              Với hệ thống nhà xưởng hiện đại và đội ngũ kỹ sư giàu kinh nghiệm, chúng tôi cam kết mang đến những sản phẩm thiết bị điện công nghiệp đạt tiêu chuẩn quốc tế.
+            <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter">Năng lực sản xuất & <br /><span className="text-accent">Quy trình chất lượng</span></h1>
+            <p className="text-xl text-slate-400 leading-relaxed font-medium">
+              Sở hữu hệ thống nhà xưởng hiện đại tại KCN Quang Minh, IPS làm chủ 100% quy trình sản xuất từ khâu quấn dây đến thử nghiệm xuất xưởng.
             </p>
           </div>
         </div>
+        <Zap className="absolute -right-20 -bottom-20 h-96 w-96 text-white/5 rotate-12" />
       </section>
 
       {/* Factory Stats */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { label: 'Diện tích nhà xưởng', value: '5,000 m²', icon: Factory },
-            { label: 'Công suất sản xuất', value: '2,000 kVA/tháng', icon: Zap },
-            { label: 'Đội ngũ kỹ sư', value: '50+ Nhân sự', icon: Award },
+            { label: 'Công suất sản xuất', value: '5,000 kVA/tháng', icon: Zap },
+            { label: 'Chứng chỉ chất lượng', value: 'ISO 9001:2015', icon: ShieldCheck },
           ].map((stat, i) => (
-            <div key={i} className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-6">
-              <div className="p-4 bg-emerald-50 rounded-xl text-emerald-600">
-                <stat.icon className="h-8 w-8" />
+            <div key={i} className="bg-white p-10 rounded-3xl shadow-2xl border border-slate-100 flex items-center gap-8">
+              <div className="p-5 bg-slate-50 rounded-2xl text-accent">
+                <stat.icon className="h-10 w-10" />
               </div>
               <div>
-                <div className="text-sm text-slate-500 font-medium mb-1">{stat.label}</div>
-                <div className="text-2xl font-bold text-slate-900">{stat.value}</div>
+                <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{stat.label}</div>
+                <div className="text-3xl font-black text-slate-900 tracking-tight">{stat.value}</div>
               </div>
             </div>
           ))}
@@ -44,30 +45,35 @@ export function Manufacturing() {
       </section>
 
       {/* Process Steps */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="text-center mb-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Quy trình sản xuất khép kín</h2>
-          <p className="text-slate-600">Từ khâu nhập liệu đến xuất xưởng đều được kiểm soát nghiêm ngặt.</p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+        <div className="text-center mb-24">
+          <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Quy trình sản xuất khép kín</h2>
+          <p className="text-slate-500 font-medium max-w-2xl mx-auto">Mỗi sản phẩm IPS đều trải qua 7 bước kiểm soát nghiêm ngặt trước khi bàn giao cho khách hàng.</p>
         </div>
         
-        <div className="space-y-24">
+        <div className="space-y-32">
           {capacity.map((step, i) => (
-            <div key={i} className={`flex flex-col lg:flex-row gap-16 items-center ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}>
+            <div key={i} className={`flex flex-col lg:flex-row gap-20 items-center ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}>
               <div className="lg:w-1/2">
-                <div className="text-6xl font-black text-slate-100 mb-6">0{step.sort_order}</div>
-                <h3 className="text-3xl font-bold text-slate-900 mb-6">{step.title}</h3>
-                <p className="text-lg text-slate-600 leading-relaxed mb-8">{step.description}</p>
-                <ul className="space-y-4">
-                  <li className="flex items-center gap-3 text-slate-700 font-medium">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-500" /> Kiểm soát sai số kỹ thuật tuyệt đối.
-                  </li>
-                  <li className="flex items-center gap-3 text-slate-700 font-medium">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-500" /> Sử dụng vật liệu cao cấp nhập khẩu.
-                  </li>
-                </ul>
+                <div className="text-7xl font-black text-slate-100 mb-8 leading-none">0{step.sort_order}</div>
+                <h3 className="text-3xl font-black text-slate-900 mb-8 uppercase tracking-tight">{step.title}</h3>
+                <p className="text-xl text-slate-600 leading-relaxed mb-10 font-medium">{step.description}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
+                    <CheckCircle2 className="h-5 w-5 text-accent" /> Kiểm soát sai số &lt; 1%
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
+                    <CheckCircle2 className="h-5 w-5 text-accent" /> Vật liệu nhập khẩu
+                  </div>
+                </div>
               </div>
               <div className="lg:w-1/2">
-                <img src={step.image_url} alt={step.title} className="rounded-3xl shadow-2xl w-full aspect-video object-cover" referrerPolicy="no-referrer" />
+                <div className="relative">
+                  <img src={step.image_url} alt={step.title} className="rounded-[3rem] shadow-2xl w-full aspect-video object-cover border-8 border-slate-50" referrerPolicy="no-referrer" />
+                  <div className="absolute -bottom-6 -right-6 bg-accent text-white p-6 rounded-2xl shadow-xl font-black text-xs uppercase tracking-widest">
+                    Step 0{step.sort_order}
+                  </div>
+                </div>
               </div>
             </div>
           ))}
@@ -75,31 +81,31 @@ export function Manufacturing() {
       </section>
 
       {/* QC Section */}
-      <section className="bg-slate-50 py-24">
+      <section className="bg-slate-50 py-32 industrial-grid border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-8">Hệ thống quản lý chất lượng (QC)</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <h2 className="text-4xl font-black text-slate-900 mb-12 uppercase tracking-tighter">Hệ thống quản lý chất lượng (QC)</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {[
-                  { icon: Ruler, title: 'Đo lường chính xác', desc: 'Sử dụng thiết bị đo chuẩn quốc tế.' },
-                  { icon: Thermometer, title: 'Kiểm tra nhiệt độ', desc: 'Thử nghiệm vận hành ở tải tối đa.' },
-                  { icon: ShieldCheck, title: 'Cách điện tuyệt đối', desc: 'Thử nghiệm phóng điện cao áp.' },
-                  { icon: Award, title: 'Chứng chỉ ISO', desc: 'Quy trình đạt chuẩn ISO 9001:2015.' },
+                  { icon: Ruler, title: 'Đo lường chính xác', desc: 'Sử dụng thiết bị đo chuẩn quốc tế, hiệu chuẩn định kỳ.' },
+                  { icon: Thermometer, title: 'Kiểm tra phát nhiệt', desc: 'Thử nghiệm vận hành ở tải tối đa trong 24h.' },
+                  { icon: ShieldCheck, title: 'Cách điện tuyệt đối', desc: 'Thử nghiệm phóng điện cao áp 2.5kV - 5kV.' },
+                  { icon: Award, title: 'Chứng chỉ ISO', desc: 'Quy trình đạt chuẩn ISO 9001:2015 toàn diện.' },
                 ].map((item, i) => (
-                  <div key={i} className="p-6 bg-white rounded-2xl border border-slate-200">
-                    <item.icon className="h-6 w-6 text-emerald-600 mb-4" />
-                    <h4 className="font-bold text-slate-900 mb-2">{item.title}</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+                  <div key={i} className="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm hover:border-accent transition-all">
+                    <item.icon className="h-8 w-8 text-accent mb-6" />
+                    <h4 className="font-black text-slate-900 mb-3 uppercase tracking-tight">{item.title}</h4>
+                    <p className="text-sm text-slate-500 leading-relaxed font-medium">{item.desc}</p>
                   </div>
                 ))}
               </div>
             </div>
             <div className="relative">
-              <img src="https://picsum.photos/seed/qc-lab/800/600" alt="QC Laboratory" className="rounded-3xl shadow-xl" referrerPolicy="no-referrer" />
-              <div className="absolute -bottom-6 -right-6 bg-emerald-600 text-white p-8 rounded-2xl shadow-xl">
-                <div className="text-4xl font-bold mb-1">100%</div>
-                <div className="text-xs font-bold uppercase tracking-widest">Sản phẩm được test tải</div>
+              <img src="https://picsum.photos/seed/qc-lab/800/600" alt="QC Laboratory" className="rounded-[3rem] shadow-2xl border-8 border-white" referrerPolicy="no-referrer" />
+              <div className="absolute -bottom-10 -right-10 bg-primary text-white p-12 rounded-[2.5rem] shadow-2xl border-4 border-white/10">
+                <div className="text-5xl font-black mb-2 text-accent">100%</div>
+                <div className="text-xs font-black uppercase tracking-widest text-slate-500">Sản phẩm được test tải</div>
               </div>
             </div>
           </div>

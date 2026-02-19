@@ -68,7 +68,7 @@ export function Calculators() {
             onClick={() => { setType('power'); setResult(null); }}
             className={cn(
               "flex-1 py-3 text-sm font-bold rounded-lg transition-all",
-              type === 'power' ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              type === 'power' ? "bg-white text-accent shadow-sm" : "text-slate-500 hover:text-slate-700"
             )}
           >
             Tính công suất (kVA)
@@ -77,7 +77,7 @@ export function Calculators() {
             onClick={() => { setType('voltage-drop'); setResult(null); }}
             className={cn(
               "flex-1 py-3 text-sm font-bold rounded-lg transition-all",
-              type === 'voltage-drop' ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              type === 'voltage-drop' ? "bg-white text-accent shadow-sm" : "text-slate-500 hover:text-slate-700"
             )}
           >
             Tính sụt áp dây dẫn
@@ -87,45 +87,45 @@ export function Calculators() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="bg-white border border-slate-200 rounded-2xl p-8">
             <h3 className="font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <Settings className="h-5 w-5 text-emerald-600" /> Thông số đầu vào
+              <Settings className="h-5 w-5 text-accent" /> Thông số đầu vào
             </h3>
             <div className="space-y-4">
               {type === 'power' ? (
                 <>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Điện áp (V)</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Điện áp (V)</label>
                     <input
                       type="number"
                       value={inputs.voltage}
                       onChange={(e) => setInputs({ ...inputs, voltage: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Dòng điện (A)</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Dòng điện (A)</label>
                     <input
                       type="number"
                       value={inputs.current}
                       onChange={(e) => setInputs({ ...inputs, current: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Hệ số công suất (cosφ)</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Hệ số công suất (cosφ)</label>
                     <input
                       type="number"
                       step="0.01"
                       value={inputs.cosPhi}
                       onChange={(e) => setInputs({ ...inputs, cosPhi: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Loại tải</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Loại tải</label>
                     <select
                       value={inputs.loadType}
                       onChange={(e) => setInputs({ ...inputs, loadType: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent outline-none"
                     >
                       <option value="motor">Động cơ (Motor)</option>
                       <option value="heater">Điện trở (Nhiệt)</option>
@@ -136,37 +136,37 @@ export function Calculators() {
               ) : (
                 <>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Chiều dài dây (m)</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Chiều dài dây (m)</label>
                     <input
                       type="number"
                       value={inputs.length}
                       onChange={(e) => setInputs({ ...inputs, length: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Dòng điện tải (A)</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Dòng điện tải (A)</label>
                     <input
                       type="number"
                       value={inputs.current}
                       onChange={(e) => setInputs({ ...inputs, current: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Tiết diện dây (mm²)</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Tiết diện dây (mm²)</label>
                     <input
                       type="number"
                       value={inputs.wireSize}
                       onChange={(e) => setInputs({ ...inputs, wireSize: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent outline-none"
                     />
                   </div>
                 </>
               )}
               <button
                 onClick={calculate}
-                className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
+                className="w-full py-4 bg-accent text-white rounded-xl font-bold hover:brightness-110 transition-all shadow-lg shadow-orange-900/10"
               >
                 Tính toán kết quả
               </button>
@@ -176,7 +176,7 @@ export function Calculators() {
           <div className="space-y-6">
             {result ? (
               <div className="bg-slate-900 text-white rounded-2xl p-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                <h3 className="text-emerald-400 font-bold uppercase tracking-widest text-xs mb-6">Kết quả tính toán</h3>
+                <h3 className="text-accent font-bold uppercase tracking-widest text-xs mb-6">Kết quả tính toán</h3>
                 {type === 'power' ? (
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
@@ -190,7 +190,7 @@ export function Calculators() {
                       </div>
                     </div>
                     <div className="pt-6 border-t border-slate-800">
-                      <div className="text-emerald-400 text-xs font-bold uppercase mb-2">Đề xuất thiết bị</div>
+                      <div className="text-accent text-xs font-bold uppercase mb-2">Đề xuất thiết bị</div>
                       <div className="text-4xl font-bold mb-4">≥ {result.recommended} kVA</div>
                       <p className="text-sm text-slate-400 leading-relaxed">{result.explanation}</p>
                     </div>
@@ -203,12 +203,12 @@ export function Calculators() {
                     </div>
                     <div>
                       <div className="text-slate-400 text-xs mb-1">Phần trăm sụt áp</div>
-                      <div className={cn("text-3xl font-bold", result.status === 'Nguy hiểm' ? "text-red-400" : "text-emerald-400")}>
+                      <div className={cn("text-3xl font-bold", result.status === 'Nguy hiểm' ? "text-red-400" : "text-accent")}>
                         {result.percent}%
                       </div>
                     </div>
                     <div className="pt-6 border-t border-slate-800">
-                      <div className="text-slate-400 text-xs font-bold uppercase mb-2">Trạng thái: <span className={result.status === 'Nguy hiểm' ? "text-red-400" : "text-emerald-400"}>{result.status}</span></div>
+                      <div className="text-slate-400 text-xs font-bold uppercase mb-2">Trạng thái: <span className={result.status === 'Nguy hiểm' ? "text-red-400" : "text-accent"}>{result.status}</span></div>
                       <p className="text-sm text-slate-400 leading-relaxed">{result.recommendation}</p>
                     </div>
                   </div>

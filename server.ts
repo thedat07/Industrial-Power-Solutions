@@ -207,6 +207,124 @@ if (catCount.count === 0) {
     "https://picsum.photos/seed/app-factory/800/600",
     "Chi tiết giải pháp điện cho nhà máy sản xuất công nghiệp..."
   );
+
+  // Articles
+  const insertArticle = db.prepare(`
+    INSERT INTO articles (slug, title, category, content, summary, image_url)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
+
+  insertArticle.run(
+    "vi-sao-may-bien-ap-bi-nong",
+    "Vì sao máy biến áp bị nóng? Nguyên nhân và cách xử lý chi tiết",
+    "error",
+    `# Vì sao máy biến áp bị nóng? Nguyên nhân và cách xử lý chi tiết
+
+## Hiện tượng thường gặp trong nhà xưởng
+
+Trong quá trình vận hành, nhiều xưởng sản xuất nhận thấy máy biến áp luôn nóng ngay cả khi tải không lớn. Ban đầu chỉ là nóng nhẹ vào buổi chiều, sau đó tăng dần đến mức sờ tay không chịu được, thậm chí có mùi sơn cách điện. Đây không phải hiện tượng bình thường mà là dấu hiệu hệ thống điện đang làm việc sai điều kiện thiết kế.
+
+Nếu không xử lý sớm, hậu quả thường không phải cháy biến áp mà là cháy motor, hỏng biến tần hoặc lỗi PLC trước.
+
+### 1. Quá tải thực tế (không phải quá tải danh nghĩa)
+Rất nhiều xưởng tính công suất theo công suất ghi trên nhãn máy. Tuy nhiên dòng tiêu thụ thực tế khi sản xuất thường cao hơn 20–40%.
+Khi dòng tăng:
+- Tổn hao đồng tăng theo bình phương dòng điện
+- Nhiệt tăng cực nhanh
+- Lớp sơn cách điện lão hóa
+Đây là nguyên nhân phổ biến nhất.
+
+### 2. Điện áp nguồn thấp
+Khi điện áp giảm, thiết bị vẫn cần đủ công suất → dòng buộc phải tăng lên để bù.
+**Hậu quả:** Biến áp nóng dù tải không đổi. Nhiều xưởng đo dòng thấy cao nhưng tưởng do máy, thực tế do điện lưới yếu.
+
+### 3. Thông gió kém
+Biến áp khô cần tản nhiệt bằng không khí. Đặt trong phòng kín hoặc sát tường làm nhiệt tích tụ. Nhiệt môi trường tăng 10°C → tuổi thọ cách điện giảm một nửa.
+
+### 4. Lão hóa vật liệu từ
+Sau vài năm, lõi thép tăng tổn hao từ → sinh nhiệt liên tục ngay cả khi không tải cao.
+
+## Mức nhiệt nguy hiểm
+- **<80°C:** bình thường
+- **80–100°C:** cần kiểm tra
+- **110°C:** nguy cơ cháy cách điện
+
+## Cách xử lý triệt để
+1. Đo dòng thực tế khi chạy hết công suất
+2. Đo điện áp tại tủ máy
+3. Kiểm tra cosφ và thanh cái
+4. Xem xét tăng công suất hoặc lắp ổn áp`,
+    "Hiện tượng thường gặp trong nhà xưởng: máy biến áp nóng bất thường ngay cả khi tải không lớn. Tìm hiểu 4 nguyên nhân cốt lõi và cách xử lý triệt để.",
+    "https://picsum.photos/seed/art1/800/600"
+  );
+
+  insertArticle.run(
+    "sut-ap-cuoi-nguon-la-gi",
+    "Sụt áp cuối nguồn là gì và cách khắc phục",
+    "standard",
+    `# Sụt áp cuối nguồn là gì và cách khắc phục
+
+## Biểu hiện điển hình
+Đầu xưởng máy chạy bình thường nhưng cuối xưởng motor ì, máy nén không khởi động hoặc biến tần báo lỗi undervoltage.
+Đây là hiện tượng rất phổ biến trong các nhà xưởng mở rộng thêm máy theo thời gian.
+
+## Nguyên nhân kỹ thuật
+Sụt áp xảy ra do điện trở dây dẫn. Khi dòng tăng, điện áp rơi trên dây tăng theo.
+Phụ thuộc vào:
+- Chiều dài dây
+- Tiết diện dây
+- Dòng tải
+- Hệ số công suất
+
+## Sai lầm thường gặp
+Thay CB lớn hơn nhưng không thay dây → hệ thống nguy hiểm hơn.
+
+## Giải pháp đúng kỹ thuật
+1. **Tăng tiết diện dây cấp nguồn:** Giảm điện trở đường dây.
+2. **Đặt nguồn gần khu máy nặng tải:** Rút ngắn khoảng cách truyền tải.
+3. **Tách tải xung lớn:** Máy hàn, máy ép nên có đường dây riêng.
+4. **Dùng ổn áp công nghiệp:** Bù áp chủ động tại điểm tiêu thụ.
+
+## Lợi ích sau khi xử lý
+Motor mát hơn rõ rệt và điện năng tiêu thụ giảm 5–15%.`,
+    "Biểu hiện điển hình của sụt áp cuối nguồn và các giải pháp kỹ thuật đúng đắn để ổn định điện áp cho nhà xưởng.",
+    "https://picsum.photos/seed/art2/800/600"
+  );
+
+  insertArticle.run(
+    "dien-3-pha-yeu-khi-chay-motor",
+    "Điện 3 pha yếu khi chạy motor nguyên nhân do đâu",
+    "selection",
+    `# Điện 3 pha yếu khi chạy motor nguyên nhân do đâu
+
+## Hiện tượng thực tế tại xưởng
+Motor chạy không đủ lực, rung, nóng nhanh nhưng không nhảy CB. Thường xuất hiện giờ cao điểm hoặc khi nhiều máy hoạt động đồng thời. Người vận hành hay nhầm là motor xuống cấp.
+
+## Phân tích kỹ thuật
+Motor 3 pha cần điện áp cân bằng. Khi điện áp mỗi pha khác nhau, dòng điện không chia đều.
+Chỉ cần lệch 5% điện áp giữa các pha → dòng có thể lệch 20–30%. Pha cao tải nhẹ, pha thấp tải nặng → cuộn dây một phía bị nung nóng liên tục.
+
+## Nguyên nhân phổ biến
+- Đường dây cấp nguồn quá dài
+- Một pha bị đấu chung nhiều tải
+- Điện khu vực yếu vào giờ sản xuất
+- Máy hàn hoặc lò điện gây sụt áp tức thời
+
+## Hậu quả lâu dài
+- Cháy một pha motor
+- Hỏng vòng bi do rung
+- Biến tần báo lỗi quá dòng
+
+## Cách kiểm tra đúng
+Không đo khi máy nghỉ. Phải đo điện áp từng pha khi tải nặng nhất.
+
+## Cách xử lý
+1. Cân pha lại tủ điện
+2. Tăng tiết diện dây nguồn
+3. Dùng ổn áp 3 pha cho khu máy chính`,
+    "Phân tích kỹ thuật hiện tượng motor chạy không đủ lực, rung, nóng nhanh do điện áp 3 pha không cân bằng hoặc yếu.",
+    "https://picsum.photos/seed/art3/800/600"
+  );
 }
 
 async function startServer() {
@@ -296,6 +414,11 @@ async function startServer() {
     const params: any[] = [];
     if (category) { query += " AND category = ?"; params.push(category); }
     res.json(db.prepare(query).all(...params));
+  });
+
+  app.get("/api/articles/:slug", (req, res) => {
+    const article = db.prepare("SELECT * FROM articles WHERE slug = ?").get(req.params.slug);
+    res.json(article);
   });
 
   app.post("/api/leads", (req, res) => {
