@@ -11,31 +11,60 @@ const db = new Database("industrial_power.db");
 
 // Initialize Database
 db.exec(`
-  CREATE TABLE IF NOT EXISTS products (
+  CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     slug TEXT UNIQUE,
     name TEXT,
-    type TEXT,
-    phase TEXT,
-    power_kva TEXT,
+    description TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id INTEGER,
+    slug TEXT UNIQUE,
+    name TEXT,
+    power_kva INTEGER,
     input_voltage TEXT,
     output_voltage TEXT,
+    wiring TEXT,
+    cooling TEXT,
+    standard TEXT,
+    material TEXT,
     accuracy TEXT,
     overload TEXT,
     applications TEXT,
     description TEXT,
+    seo_description TEXT,
+    image_url TEXT,
+    catalog_url TEXT,
+    drawing_url TEXT,
+    FOREIGN KEY(category_id) REFERENCES categories(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS manufacturing_capacity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    description TEXT,
+    image_url TEXT,
+    sort_order INTEGER
+  );
+
+  CREATE TABLE IF NOT EXISTS certificates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
     image_url TEXT
   );
 
-  CREATE TABLE IF NOT EXISTS solutions (
+  CREATE TABLE IF NOT EXISTS applications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     slug TEXT UNIQUE,
-    industry TEXT,
+    title TEXT,
+    industry_key TEXT,
     problem TEXT,
-    cause TEXT,
-    voltage_range TEXT,
-    calculation TEXT,
-    image_url TEXT
+    solution TEXT,
+    diagram_url TEXT,
+    image_url TEXT,
+    seo_content TEXT
   );
 
   CREATE TABLE IF NOT EXISTS articles (
@@ -45,117 +74,138 @@ db.exec(`
     category TEXT,
     content TEXT,
     summary TEXT,
-    image_url TEXT
+    image_url TEXT,
+    published_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT UNIQUE,
     title TEXT,
     industry TEXT,
     location TEXT,
-    kva TEXT,
+    province TEXT,
+    year INTEGER,
+    kva INTEGER,
     problem TEXT,
     solution TEXT,
     result TEXT,
     image_url TEXT
   );
 
+  CREATE TABLE IF NOT EXISTS project_products (
+    project_id INTEGER,
+    product_id INTEGER,
+    PRIMARY KEY(project_id, product_id),
+    FOREIGN KEY(project_id) REFERENCES projects(id),
+    FOREIGN KEY(product_id) REFERENCES products(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    type TEXT,
+    product_category_id INTEGER,
+    power_range TEXT,
+    file_format TEXT,
+    file_url TEXT,
+    FOREIGN KEY(product_category_id) REFERENCES categories(id)
+  );
+
   CREATE TABLE IF NOT EXISTS leads (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT,
     company_name TEXT,
     phone TEXT,
     email TEXT,
     load_description TEXT,
-    voltage TEXT,
+    voltage_in TEXT,
+    voltage_out TEXT,
     kva TEXT,
+    application TEXT,
+    document_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 `);
 
-// Seed Data (if empty)
-const productCount = db.prepare("SELECT COUNT(*) as count FROM products").get() as { count: number };
-if (productCount.count === 0) {
+// Seed Data
+const catCount = db.prepare("SELECT COUNT(*) as count FROM categories").get() as { count: number };
+if (catCount.count === 0) {
+  // Categories
+  const insertCat = db.prepare("INSERT INTO categories (slug, name, description) VALUES (?, ?, ?)");
+  const mba3p = insertCat.run("may-bien-ap-3-pha", "Máy Biến Áp 3 Pha", "Dòng máy biến áp hạ thế chuyên dụng cho nhà xưởng và khu công nghiệp. Chúng tôi cung cấp các giải pháp biến áp từ 10kVA đến 2500kVA, đáp ứng tiêu chuẩn IEC và TCVN.").lastInsertRowid;
+  insertCat.run("bien-ap-trung-the", "Biến Áp Trung Thế", "Hệ thống trạm biến áp trung thế từ 6kV đến 35kV.");
+  const onap = insertCat.run("on-ap-cong-nghiep", "Ổn Áp Công Nghiệp", "Giải pháp ổn định điện áp tự động dải rộng cho thiết bị nhạy cảm.").lastInsertRowid;
+  // Use onap if needed in future seeds
+  console.log("Seeded onap with id:", onap);
+
+  // Products
   const insertProduct = db.prepare(`
-    INSERT INTO products (slug, name, type, phase, power_kva, input_voltage, output_voltage, accuracy, overload, applications, description, image_url)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO products (category_id, slug, name, power_kva, input_voltage, output_voltage, wiring, cooling, standard, material, accuracy, overload, applications, description, seo_description, image_url, catalog_url, drawing_url)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   insertProduct.run(
-    "bien-ap-3-pha-150kva",
-    "Biến áp 3 pha 150kVA",
-    "Biến áp",
-    "3 pha",
-    "150kVA",
+    mba3p,
+    "bien-ap-3-pha-250kva",
+    "Máy Biến Áp 3 Pha 250kVA",
+    250,
     "380V",
     "200V/220V",
+    "Dyn11",
+    "ONAN",
+    "IEC 60076",
+    "Đồng 100%",
     "±1%",
-    "150% trong 60s",
-    "Máy CNC, máy cắt Laser, dây chuyền tự động",
-    "Biến áp cách ly/tự ngẫu chuyên dụng cho thiết bị công nghiệp nhập khẩu.",
-    "https://picsum.photos/seed/transformer/800/600"
-  );
-  insertProduct.run(
-    "on-ap-servo-3-pha-100kva",
-    "Ổn áp Servo 3 pha 100kVA",
-    "Ổn áp",
-    "3 pha",
-    "100kVA",
-    "260V - 430V",
-    "380V",
-    "±2%",
-    "120% trong 30s",
-    "Nhà xưởng, hệ thống chiếu sáng, động cơ lớn",
-    "Ổn định điện áp tự động bằng motor Servo, độ bền cao.",
-    "https://picsum.photos/seed/stabilizer/800/600"
+    "150% (60s)",
+    "nha-may, co-khi",
+    "Máy biến áp 250kVA hiệu suất cao...",
+    "Mua máy biến áp 3 pha 250kVA chính hãng IPS. Tiêu chuẩn IEC, bảo hành 24 tháng.",
+    "https://picsum.photos/seed/mba250/800/600",
+    "#", "#"
   );
 
-  const insertSolution = db.prepare(`
-    INSERT INTO solutions (slug, industry, problem, cause, voltage_range, calculation, image_url)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
-  insertSolution.run(
-    "cho-cnc",
-    "Máy CNC",
-    "Máy tự reset, lỗi Spindle, Alarm Servo vào giờ cao điểm.",
-    "Điện lưới dao động gây mất đồng bộ Driver và Encoder.",
-    "380V ±3% (Hoạt động chuẩn)",
-    "Công suất nguồn ≥ 1.8 × công suất Spindle.",
-    "https://picsum.photos/seed/cnc/800/600"
-  );
+  // Documents
+  const insertDoc = db.prepare("INSERT INTO documents (title, type, product_category_id, power_range, file_format, file_url) VALUES (?, ?, ?, ?, ?, ?)");
+  insertDoc.run("Catalogue Máy Biến Áp 3 Pha 2024", "catalogue", mba3p, "10-2500kVA", "PDF", "#");
+  insertDoc.run("Datasheet Biến Áp 250kVA", "datasheet", mba3p, "250kVA", "PDF", "#");
 
-  const insertArticle = db.prepare(`
-    INSERT INTO articles (slug, title, category, content, summary, image_url)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `);
-  insertArticle.run(
-    "dien-ap-3-pha-bao-nhieu-la-binh-thuong",
-    "Điện áp 3 pha bao nhiêu là bình thường trong nhà xưởng?",
-    "Nguyên lý",
-    "Tiêu chuẩn điện áp 3 pha tại Việt Nam thường là 380V. Tuy nhiên, trong môi trường công nghiệp, con số này có thể dao động...",
-    "Tìm hiểu về tiêu chuẩn điện áp và cách đo đạc chính xác trong môi trường công nghiệp.",
-    "https://picsum.photos/seed/voltage/800/600"
-  );
-  insertArticle.run(
-    "dien-yeu-lam-motor-nong-nhu-the-nao",
-    "Điện yếu làm motor nóng như thế nào?",
-    "Sự cố",
-    "Khi điện áp giảm, dòng điện sẽ tăng lên để duy trì công suất, dẫn đến nhiệt độ cuộn dây tăng cao...",
-    "Phân tích tác động của sụt áp đến tuổi thọ và hiệu suất của động cơ điện.",
-    "https://picsum.photos/seed/motor/800/600"
-  );
+  // Manufacturing Capacity
+  const insertCap = db.prepare("INSERT INTO manufacturing_capacity (title, description, image_url, sort_order) VALUES (?, ?, ?, ?)");
+  insertCap.run("Cắt lõi thép Silic", "Hệ thống máy cắt tôn silic tự động đảm bảo độ chính xác và giảm thiểu tổn hao không tải.", "https://picsum.photos/seed/factory1/800/600", 1);
+  insertCap.run("Quấn dây đồng", "Công nghệ quấn dây hiện đại, kiểm soát lực căng, đảm bảo độ bền cơ học và điện môi.", "https://picsum.photos/seed/factory2/800/600", 2);
+  insertCap.run("Sấy chân không", "Quy trình sấy loại bỏ hoàn toàn ẩm, tăng cường độ bền cách điện cho cuộn dây.", "https://picsum.photos/seed/factory3/800/600", 3);
+  insertCap.run("Thử nghiệm KCS", "Phòng thử nghiệm đạt chuẩn ISO, kiểm tra 100% sản phẩm trước khi xuất xưởng.", "https://picsum.photos/seed/factory4/800/600", 4);
 
+  // Projects
   const insertProject = db.prepare(`
-    INSERT INTO projects (title, industry, location, kva, problem, solution, result, image_url)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO projects (slug, title, industry, location, province, year, kva, problem, solution, result, image_url)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   insertProject.run(
-    "Xử lý sụt áp cho nhà xưởng cơ khí",
-    "Cơ khí",
-    "Hưng Yên",
-    "250kVA",
-    "Điện áp sụt xuống 310V khi vào tải, máy CNC dừng hoạt động.",
-    "Lắp đặt hệ thống ổn áp 3 pha dải rộng 250kVA.",
-    "Điện áp ổn định 380V, dây chuyền chạy liên tục 24/7.",
-    "https://picsum.photos/seed/project1/800/600"
+    "du-an-nha-may-nhua-bac-ninh",
+    "Trạm biến áp nhà máy nhựa Bắc Ninh",
+    "nha-may",
+    "KCN Quế Võ",
+    "Bắc Ninh",
+    2024,
+    1000,
+    "Điện áp không ổn định gây lỗi sản phẩm nhựa.",
+    "Trạm biến áp 1000kVA Dyn11.",
+    "Tỷ lệ phế phẩm giảm 20%.",
+    "https://picsum.photos/seed/proj-bn/800/600"
+  );
+
+  // Applications
+  const insertApp = db.prepare("INSERT INTO applications (slug, title, industry_key, problem, solution, diagram_url, image_url, seo_content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+  insertApp.run(
+    "nha-may-san-xuat",
+    "Giải pháp cho Nhà máy sản xuất",
+    "nha-may",
+    "Sụt áp khi khởi động động cơ lớn, gây dừng dây chuyền.",
+    "Lắp đặt biến áp hạ thế kết hợp ổn áp dải rộng.",
+    "https://picsum.photos/seed/diagram1/800/600",
+    "https://picsum.photos/seed/app-factory/800/600",
+    "Chi tiết giải pháp điện cho nhà máy sản xuất công nghiệp..."
   );
 }
 
@@ -166,9 +216,25 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
+  app.get("/api/categories", (req, res) => {
+    const cats = db.prepare("SELECT * FROM categories").all();
+    res.json(cats);
+  });
+
   app.get("/api/products", (req, res) => {
-    const products = db.prepare("SELECT * FROM products").all();
-    res.json(products);
+    const { category, power_min, power_max, voltage_in, voltage_out, cooling, application } = req.query;
+    let query = "SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id WHERE 1=1";
+    const params: any[] = [];
+
+    if (category) { query += " AND c.slug = ?"; params.push(category); }
+    if (power_min) { query += " AND p.power_kva >= ?"; params.push(power_min); }
+    if (power_max) { query += " AND p.power_kva <= ?"; params.push(power_max); }
+    if (voltage_in) { query += " AND p.input_voltage = ?"; params.push(voltage_in); }
+    if (voltage_out) { query += " AND p.output_voltage = ?"; params.push(voltage_out); }
+    if (cooling) { query += " AND p.cooling = ?"; params.push(cooling); }
+    if (application) { query += " AND p.applications LIKE ?"; params.push(`%${application}%`); }
+
+    res.json(db.prepare(query).all(...params));
   });
 
   app.get("/api/products/:slug", (req, res) => {
@@ -176,38 +242,69 @@ async function startServer() {
     res.json(product);
   });
 
-  app.get("/api/solutions", (req, res) => {
-    const solutions = db.prepare("SELECT * FROM solutions").all();
-    res.json(solutions);
-  });
-
-  app.get("/api/solutions/:slug", (req, res) => {
-    const solution = db.prepare("SELECT * FROM solutions WHERE slug = ?").get(req.params.slug);
-    res.json(solution);
-  });
-
-  app.get("/api/articles", (req, res) => {
-    const articles = db.prepare("SELECT * FROM articles").all();
-    res.json(articles);
-  });
-
-  app.get("/api/articles/:slug", (req, res) => {
-    const article = db.prepare("SELECT * FROM articles WHERE slug = ?").get(req.params.slug);
-    res.json(article);
+  app.get("/api/manufacturing", (req, res) => {
+    const capacity = db.prepare("SELECT * FROM manufacturing_capacity ORDER BY sort_order").all();
+    res.json(capacity);
   });
 
   app.get("/api/projects", (req, res) => {
-    const projects = db.prepare("SELECT * FROM projects").all();
-    res.json(projects);
+    const { industry, province, year } = req.query;
+    let query = "SELECT * FROM projects WHERE 1=1";
+    const params: any[] = [];
+    if (industry) { query += " AND industry = ?"; params.push(industry); }
+    if (province) { query += " AND province = ?"; params.push(province); }
+    if (year) { query += " AND year = ?"; params.push(year); }
+    res.json(db.prepare(query).all(...params));
+  });
+
+  app.get("/api/projects/:slug", (req, res) => {
+    const project = db.prepare("SELECT * FROM projects WHERE slug = ?").get(req.params.slug);
+    if (project) {
+      const products = db.prepare(`
+        SELECT p.* FROM products p
+        JOIN project_products pp ON p.id = pp.product_id
+        WHERE pp.project_id = ?
+      `).all(project.id);
+      project.related_products = products;
+    }
+    res.json(project);
+  });
+
+  app.get("/api/applications", (req, res) => {
+    const apps = db.prepare("SELECT * FROM applications").all();
+    res.json(apps);
+  });
+
+  app.get("/api/applications/:slug", (req, res) => {
+    const app = db.prepare("SELECT * FROM applications WHERE slug = ?").get(req.params.slug);
+    res.json(app);
+  });
+
+  app.get("/api/documents", (req, res) => {
+    const { type, category, power } = req.query;
+    let query = "SELECT d.*, c.name as category_name FROM documents d JOIN categories c ON d.product_category_id = c.id WHERE 1=1";
+    const params: any[] = [];
+    if (type) { query += " AND d.type = ?"; params.push(type); }
+    if (category) { query += " AND c.slug = ?"; params.push(category); }
+    if (power) { query += " AND d.power_range LIKE ?"; params.push(`%${power}%`); }
+    res.json(db.prepare(query).all(...params));
+  });
+
+  app.get("/api/articles", (req, res) => {
+    const { category } = req.query;
+    let query = "SELECT * FROM articles WHERE 1=1";
+    const params: any[] = [];
+    if (category) { query += " AND category = ?"; params.push(category); }
+    res.json(db.prepare(query).all(...params));
   });
 
   app.post("/api/leads", (req, res) => {
-    const { company_name, phone, email, load_description, voltage, kva } = req.body;
+    const { type, company_name, phone, email, load_description, voltage_in, voltage_out, kva, application, document_id } = req.body;
     const stmt = db.prepare(`
-      INSERT INTO leads (company_name, phone, email, load_description, voltage, kva)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO leads (type, company_name, phone, email, load_description, voltage_in, voltage_out, kva, application, document_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
-    const info = stmt.run(company_name, phone, email, load_description, voltage, kva);
+    const info = stmt.run(type || 'quote', company_name, phone, email, load_description, voltage_in, voltage_out, kva, application, document_id);
     res.json({ success: true, id: info.lastInsertRowid });
   });
 

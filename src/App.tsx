@@ -3,15 +3,27 @@ import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-
 import { Navbar, Footer } from './components/Layout';
 import { Home } from './pages/Home';
 import { Products, ProductDetail } from './pages/Products';
-import { Solutions, SolutionDetail } from './pages/Solutions';
+import { Manufacturing } from './pages/Manufacturing';
+import { Applications, ApplicationDetail } from './pages/Applications';
 import { Knowledge, ArticleDetail } from './pages/Knowledge';
 import { Calculators } from './pages/Calculators';
-import { Projects } from './pages/Projects';
+import { Projects, ProjectDetail } from './pages/Projects';
 import { LeadForm } from './pages/LeadForm';
+import { DocumentCenter } from './pages/DocumentCenter';
 
 function ProductDetailWrapper() {
   const { slug } = useParams();
   return <ProductDetail slug={slug || ''} />;
+}
+
+function ApplicationDetailWrapper() {
+  const { slug } = useParams();
+  return <ApplicationDetail slug={slug || ''} />;
+}
+
+function ProjectDetailWrapper() {
+  const { slug } = useParams();
+  return <ProjectDetail slug={slug || ''} />;
 }
 
 function ArticleDetailWrapper() {
@@ -29,13 +41,15 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/san-pham" element={<Products />} />
             <Route path="/san-pham/:slug" element={<ProductDetailWrapper />} />
-            <Route path="/giai-phap" element={<Solutions />} />
-            <Route path="/giai-phap/:slug" element={<SolutionDetail />} />
+            <Route path="/nang-luc" element={<Manufacturing />} />
+            <Route path="/ung-dung" element={<Applications />} />
+            <Route path="/ung-dung/:slug" element={<ApplicationDetailWrapper />} />
             <Route path="/kien-thuc" element={<Knowledge />} />
             <Route path="/kien-thuc/:slug" element={<ArticleDetailWrapper />} />
             <Route path="/cong-cu" element={<Calculators />} />
-            <Route path="/du-an" element={<Projects />} />
-            <Route path="/tai-lieu" element={<div className="p-20 text-center text-slate-500">Thư viện tài liệu đang được cập nhật...</div>} />
+            <Route path="/cong-trinh" element={<Projects />} />
+            <Route path="/cong-trinh/:slug" element={<ProjectDetailWrapper />} />
+            <Route path="/tai-lieu" element={<DocumentCenter />} />
             <Route path="/gui-thong-so" element={<LeadForm />} />
           </Routes>
         </main>

@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Zap, Phone, Mail, FileText, Calculator, BookOpen, Briefcase, Settings } from 'lucide-react';
+import { Menu, X, Zap, Phone, Mail, FileText, BookOpen, Briefcase, Settings, Factory } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
 const navItems = [
   { name: 'Sản phẩm', path: '/san-pham', icon: Settings },
-  { name: 'Giải pháp', path: '/giai-phap', icon: Zap },
-  { name: 'Công cụ', path: '/cong-cu', icon: Calculator },
-  { name: 'Kiến thức', path: '/kien-thuc', icon: BookOpen },
-  { name: 'Dự án', path: '/du-an', icon: Briefcase },
+  { name: 'Năng lực', path: '/nang-luc', icon: Factory },
+  { name: 'Công trình', path: '/cong-trinh', icon: Briefcase },
+  { name: 'Ứng dụng', path: '/ung-dung', icon: Zap },
   { name: 'Tài liệu', path: '/tai-lieu', icon: FileText },
+  { name: 'Kỹ thuật', path: '/kien-thuc', icon: BookOpen },
 ];
 
 export function Navbar() {
@@ -49,7 +49,7 @@ export function Navbar() {
               to="/gui-thong-so"
               className="ml-4 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 transition-all shadow-sm"
             >
-              Gửi thông số
+              Nhận báo giá
             </Link>
           </div>
 
@@ -91,7 +91,7 @@ export function Navbar() {
               className="flex items-center gap-3 px-3 py-2 text-base font-medium text-white bg-emerald-600 rounded-md"
             >
               <Mail className="h-5 w-5" />
-              Gửi thông số kỹ thuật
+              Nhận báo giá kỹ thuật
             </Link>
           </div>
         </div>
