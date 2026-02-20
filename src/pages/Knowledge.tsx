@@ -25,6 +25,12 @@ export function Knowledge() {
 
       if (activeCat) queryBuilder = queryBuilder.eq("category", activeCat);
 
+      if (query) {
+        queryBuilder = queryBuilder.or(
+          `title.ilike.%${query}%,summary.ilike.%${query}%`
+        );
+      }
+
       const { data, error } = await queryBuilder;
 
       if (error) {
@@ -37,7 +43,7 @@ export function Knowledge() {
     };
 
     loadArticles();
-  }, [activeCat]);
+  }, [activeCat, query]);
 
   const filteredArticles = articles.filter(art =>
     art.title.toLowerCase().includes(query.toLowerCase()) ||
@@ -150,7 +156,23 @@ export function ArticleDetail({ slug }: { slug: string }) {
   const [article, setArticle] = React.useState<any>(null);
 
   React.useEffect(() => {
-    fetch(`/api/articles/${slug}`).then(res => res.json()).then(setArticle);
+    const loadArticle = async () => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+      if (error) {
+        console.error("Load article error:", error);
+        setArticle(null);
+        return;
+      }
+
+      setArticle(data ?? null);
+    };
+
+    loadArticle();
   }, [slug]);
 
   if (!article) return <div className="p-20 text-center">Đang tải...</div>;
