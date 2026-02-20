@@ -1,4 +1,5 @@
 import React from 'react';
+import { supabase } from "@/src/lib/supabase";
 import { Link } from 'react-router-dom';
 import { Zap, Factory, ArrowRight, AlertTriangle, CheckCircle2, Activity, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -7,7 +8,22 @@ export function Home() {
   const [articles, setArticles] = React.useState<any[]>([]);
 
   React.useEffect(() => {
-    fetch('/api/articles').then(res => res.json()).then(data => setArticles(data.slice(0, 6)));
+    const loadArticles = async () => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("*")
+        .limit(6);
+
+      if (error) {
+        console.error("Load articles error:", error);
+        setArticles([]);
+        return;
+      }
+
+      setArticles(data ?? []);
+    };
+
+    loadArticles();
   }, []);
 
   const symptoms = [
@@ -56,7 +72,7 @@ export function Home() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-950/80 to-slate-950"></div>
         </div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20">
           <div className="max-w-4xl">
             <motion.div
@@ -76,7 +92,7 @@ export function Home() {
                 Nhập vài thông số — kỹ sư sẽ phân tích giúp bạn trong 15 phút.
               </p>
               <p className="text-lg text-slate-400 mb-12 leading-relaxed max-w-2xl font-medium">
-                Phần lớn nhà xưởng gặp sự cố không phải do máy hỏng mà do điện áp sụt, lệch pha hoặc nguồn không đủ khi tải tăng. 
+                Phần lớn nhà xưởng gặp sự cố không phải do máy hỏng mà do điện áp sụt, lệch pha hoặc nguồn không đủ khi tải tăng.
                 Chúng tôi hỗ trợ kiểm tra miễn phí trước khi bạn phải tốn chi phí sửa chữa.
               </p>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -104,7 +120,7 @@ export function Home() {
             <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Bạn đang gặp tình trạng nào trong xưởng?</h2>
             <p className="text-slate-500 font-medium max-w-2xl mx-auto text-lg">Chọn đúng hiện tượng bạn thấy — hệ thống sẽ gợi ý nguyên nhân phổ biến nhất.</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {symptoms.map((symptom, i) => (
               <Link key={i} to={`/kien-thuc/${symptom.slug}`} className="p-8 bg-white border border-slate-200 rounded-2xl shadow-sm hover:border-accent hover:shadow-xl transition-all group flex items-start gap-4">
@@ -115,7 +131,7 @@ export function Home() {
               </Link>
             ))}
           </div>
-          
+
           <div className="mt-16 text-center">
             <div className="inline-flex items-center gap-3 p-6 bg-white border border-slate-200 rounded-2xl shadow-sm">
               <AlertTriangle className="h-6 w-6 text-accent" />
@@ -132,9 +148,9 @@ export function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="relative">
-              <img 
-                src="https://picsum.photos/seed/engineer-check/800/1000" 
-                alt="Engineer Checking" 
+              <img
+                src="https://picsum.photos/seed/engineer-check/800/1000"
+                alt="Engineer Checking"
                 className="rounded-[3rem] shadow-2xl border-8 border-slate-50"
                 referrerPolicy="no-referrer"
               />
@@ -147,7 +163,7 @@ export function Home() {
               <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">Vì sao không nên mua thiết bị ngay?</h2>
               <div className="space-y-6 text-lg text-slate-600 font-medium leading-relaxed">
                 <p>
-                  Khoảng 70% trường hợp xưởng thay ổn áp hoặc biến áp nhưng lỗi vẫn lặp lại. 
+                  Khoảng 70% trường hợp xưởng thay ổn áp hoặc biến áp nhưng lỗi vẫn lặp lại.
                   Nguyên nhân thực tế là sụt áp trên đường dây, cấp nguồn sai vị trí hoặc dòng khởi động quá lớn.
                 </p>
                 <div className="p-8 bg-slate-50 rounded-3xl border-2 border-slate-100">
@@ -196,7 +212,7 @@ export function Home() {
               Xem toàn bộ hướng dẫn kỹ thuật <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {articles.map((art, i) => (
               <Link key={i} to={`/kien-thuc/${art.slug}`} className="group bg-white/5 border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-all flex flex-col h-full">
@@ -220,7 +236,7 @@ export function Home() {
             <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Các hướng xử lý phổ biến</h2>
             <p className="text-slate-500 font-medium max-w-2xl mx-auto text-lg">Sau khi xác định nguyên nhân, giải pháp có thể không giống bạn nghĩ.</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {solutions.map((sol, i) => (
               <div key={i} className="p-10 bg-slate-50 border border-slate-200 rounded-[2.5rem] flex gap-8 group hover:border-accent transition-all">

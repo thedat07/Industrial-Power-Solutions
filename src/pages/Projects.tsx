@@ -2,19 +2,34 @@ import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Briefcase, MapPin, CheckCircle2, ArrowRight, Zap, ShieldCheck, Factory } from 'lucide-react';
 import { JsonLd } from '@/src/components/SEO';
+import { supabase } from "@/src/lib/supabase";
 
 export function Projects() {
   const [projects, setProjects] = React.useState<any[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const industry = searchParams.get('industry') || '';
   const province = searchParams.get('province') || '';
 
   React.useEffect(() => {
-    const params = new URLSearchParams();
-    if (industry) params.append('industry', industry);
-    if (province) params.append('province', province);
-    fetch(`/api/projects?${params.toString()}`).then(res => res.json()).then(setProjects);
+    const loadProjects = async () => {
+      let query = supabase.from("projects").select("*");
+
+      if (industry) query = query.eq("industry", industry);
+      if (province) query = query.eq("province", province);
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Load projects error:", error);
+        setProjects([]);
+        return;
+      }
+
+      setProjects(data ?? []);
+    };
+
+    loadProjects();
   }, [industry, province]);
 
   return (
@@ -31,8 +46,8 @@ export function Projects() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-12">
-          <select 
-            value={industry} 
+          <select
+            value={industry}
             onChange={e => setSearchParams({ industry: e.target.value, province })}
             className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-emerald-500"
           >
@@ -41,8 +56,8 @@ export function Projects() {
             <option value="co-khi">Cơ khí</option>
             <option value="solar">Solar</option>
           </select>
-          <select 
-            value={province} 
+          <select
+            value={province}
             onChange={e => setSearchParams({ industry, province: e.target.value })}
             className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-emerald-500"
           >
@@ -72,9 +87,9 @@ export function Projects() {
                       {project.kva} kVA
                     </span>
                   </div>
-                  
+
                   <h2 className="text-3xl font-bold text-slate-900 mb-8 leading-tight">{project.title}</h2>
-                  
+
                   <div className="space-y-8 mb-12">
                     <div>
                       <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Vấn đề ban đầu</h4>

@@ -1,11 +1,26 @@
 import React from 'react';
 import { Factory, ShieldCheck, Award, CheckCircle2, Ruler, Thermometer, Zap } from 'lucide-react';
+import { supabase } from "@/src/lib/supabase";
 
 export function Manufacturing() {
   const [capacity, setCapacity] = React.useState<any[]>([]);
 
   React.useEffect(() => {
-    fetch('/api/manufacturing').then(res => res.json()).then(setCapacity);
+    const loadCapacity = async () => {
+      const { data, error } = await supabase
+        .from("manufacturing")
+        .select("*");
+
+      if (error) {
+        console.error("Load manufacturing error:", error);
+        setCapacity([]);
+        return;
+      }
+
+      setCapacity(data ?? []);
+    };
+
+    loadCapacity();
   }, []);
 
   return (
@@ -50,7 +65,7 @@ export function Manufacturing() {
           <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Quy trình sản xuất khép kín</h2>
           <p className="text-slate-500 font-medium max-w-2xl mx-auto">Mỗi sản phẩm IPS đều trải qua 7 bước kiểm soát nghiêm ngặt trước khi bàn giao cho khách hàng.</p>
         </div>
-        
+
         <div className="space-y-32">
           {capacity.map((step, i) => (
             <div key={i} className={`flex flex-col lg:flex-row gap-20 items-center ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}>

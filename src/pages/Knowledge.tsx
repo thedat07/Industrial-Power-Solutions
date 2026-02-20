@@ -4,6 +4,7 @@ import { Search, ArrowRight, Clock, User, ChevronRight, Zap } from 'lucide-react
 import ReactMarkdown from 'react-markdown';
 import { JsonLd } from '@/src/components/SEO';
 import { cn } from '@/src/lib/utils';
+import { supabase } from "@/src/lib/supabase";
 
 export function Knowledge() {
   const [articles, setArticles] = React.useState<any[]>([]);
@@ -19,13 +20,27 @@ export function Knowledge() {
   ];
 
   React.useEffect(() => {
-    const params = new URLSearchParams();
-    if (activeCat) params.append('category', activeCat);
-    fetch(`/api/articles?${params.toString()}`).then(res => res.json()).then(setArticles);
+    const loadArticles = async () => {
+      let queryBuilder = supabase.from("articles").select("*");
+
+      if (activeCat) queryBuilder = queryBuilder.eq("category", activeCat);
+
+      const { data, error } = await queryBuilder;
+
+      if (error) {
+        console.error("Load articles error:", error);
+        setArticles([]);
+        return;
+      }
+
+      setArticles(data ?? []);
+    };
+
+    loadArticles();
   }, [activeCat]);
 
-  const filteredArticles = articles.filter(art => 
-    art.title.toLowerCase().includes(query.toLowerCase()) || 
+  const filteredArticles = articles.filter(art =>
+    art.title.toLowerCase().includes(query.toLowerCase()) ||
     art.summary.toLowerCase().includes(query.toLowerCase())
   );
 

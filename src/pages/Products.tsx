@@ -2,12 +2,13 @@ import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Filter, Download, ShieldCheck } from 'lucide-react';
 import { JsonLd } from '@/src/components/SEO';
+import { supabase } from "@/src/lib/supabase";
 
 export function Products() {
   const [products, setProducts] = React.useState<any[]>([]);
   const [categories, setCategories] = React.useState<any[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Filters
   const cat = searchParams.get('cat') || '';
   const power = searchParams.get('power') || '';
@@ -15,19 +16,44 @@ export function Products() {
   const vout = searchParams.get('vout') || '';
 
   React.useEffect(() => {
-    fetch('/api/categories').then(res => res.json()).then(setCategories);
+    const loadCategories = async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*");
+
+      if (error) {
+        console.error("Load categories error:", error);
+        setCategories([]);
+        return;
+      }
+
+      setCategories(data ?? []);
+    };
+
+    loadCategories();
   }, []);
 
   React.useEffect(() => {
-    const params = new URLSearchParams();
-    if (cat) params.append('category', cat);
-    if (power) params.append('power_max', power);
-    if (vin) params.append('voltage_in', vin);
-    if (vout) params.append('voltage_out', vout);
-    
-    fetch(`/api/products?${params.toString()}`)
-      .then(res => res.json())
-      .then(setProducts);
+    const loadProducts = async () => {
+      let query = supabase.from("products").select("*");
+
+      if (cat) query = query.eq("category", cat);
+      if (power) query = query.lte("power_max", power);
+      if (vin) query = query.eq("voltage_in", vin);
+      if (vout) query = query.eq("voltage_out", vout);
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Load products error:", error);
+        setProducts([]);
+        return;
+      }
+
+      setProducts(data ?? []);
+    };
+
+    loadProducts();
   }, [cat, power, vin, vout]);
 
   const updateFilter = (key: string, value: string) => {
@@ -69,12 +95,12 @@ export function Products() {
               <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
                 <Filter className="h-4 w-4" /> Bộ lọc kỹ thuật
               </h3>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-3">Loại thiết bị</label>
-                    <select 
-                    value={cat} 
+                  <select
+                    value={cat}
                     onChange={e => updateFilter('cat', e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-accent"
                   >
@@ -85,16 +111,16 @@ export function Products() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-3">Công suất tối đa (kVA)</label>
-                  <input 
-                    type="range" 
-                    min="10" 
-                    max="2500" 
+                  <input
+                    type="range"
+                    min="10"
+                    max="2500"
                     step="10"
                     value={power || 2500}
                     onChange={e => updateFilter('power', e.target.value)}
                     className="w-full accent-accent"
                   />
-                    <div className="flex justify-between text-[10px] text-slate-500 font-bold mt-2">
+                  <div className="flex justify-between text-[10px] text-slate-500 font-bold mt-2">
                     <span>10kVA</span>
                     <span className="text-accent">{power || '2500'}kVA</span>
                     <span>2500kVA</span>
@@ -103,8 +129,8 @@ export function Products() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-3">Điện áp vào</label>
-                    <select 
-                    value={vin} 
+                  <select
+                    value={vin}
                     onChange={e => updateFilter('vin', e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-accent"
                   >
@@ -117,8 +143,8 @@ export function Products() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-3">Điện áp ra</label>
-                    <select 
-                    value={vout} 
+                  <select
+                    value={vout}
                     onChange={e => updateFilter('vout', e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-accent"
                   >
@@ -237,7 +263,7 @@ export function ProductDetail({ slug }: { slug: string }) {
   return (
     <div className="bg-white min-h-screen">
       <JsonLd data={generateProductSchema(product)} />
-      
+
       {/* Breadcrumbs */}
       <div className="bg-slate-50 border-b border-slate-100 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -258,7 +284,7 @@ export function ProductDetail({ slug }: { slug: string }) {
             <div className="aspect-square rounded-[3rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-2xl">
               <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-8 bg-slate-50 rounded-3xl border border-slate-100">
                 <h3 className="text-sm font-black text-slate-900 mb-4 uppercase tracking-tight flex items-center gap-2">
@@ -275,7 +301,7 @@ export function ProductDetail({ slug }: { slug: string }) {
                   </a>
                 </div>
               </div>
-              
+
               <div className="p-8 bg-slate-50 rounded-3xl border border-slate-100">
                 <h3 className="text-sm font-black text-slate-900 mb-4 uppercase tracking-tight flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-accent" /> Cam kết chất lượng
@@ -309,7 +335,7 @@ export function ProductDetail({ slug }: { slug: string }) {
             <div className="sticky top-32 space-y-8">
               <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-10 shadow-2xl shadow-slate-200/50">
                 <h1 className="text-3xl font-black text-slate-900 mb-8 uppercase tracking-tighter leading-tight">{product.name}</h1>
-                
+
                 <div className="space-y-1 mb-10">
                   <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Thông số kỹ thuật định mức</div>
                   <table className="w-full border-collapse">

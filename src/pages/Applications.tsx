@@ -2,12 +2,27 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, ArrowRight, Activity, AlertTriangle, Zap } from 'lucide-react';
 import { JsonLd } from '@/src/components/SEO';
+import { supabase } from "@/src/lib/supabase";
 
 export function Applications() {
   const [apps, setApps] = React.useState<any[]>([]);
 
   React.useEffect(() => {
-    fetch('/api/applications').then(res => res.json()).then(setApps);
+    const loadApps = async () => {
+      const { data, error } = await supabase
+        .from("applications")
+        .select("*");
+
+      if (error) {
+        console.error("Load applications error:", error);
+        setApps([]);
+        return;
+      }
+
+      setApps(data ?? []);
+    };
+
+    loadApps();
   }, []);
 
   return (

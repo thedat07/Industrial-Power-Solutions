@@ -1,6 +1,7 @@
 import React from 'react';
 import { FileText, Download, Lock, CheckCircle2, Table, FileCode, ShieldCheck, X } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
+import { supabase } from "@/src/lib/supabase";
 
 export function DocumentCenter() {
   const [docs, setDocs] = React.useState<any[]>([]);
@@ -9,7 +10,21 @@ export function DocumentCenter() {
   const [leadStatus, setLeadStatus] = React.useState<'idle' | 'success'>('idle');
 
   React.useEffect(() => {
-    fetch('/api/documents').then(res => res.json()).then(setDocs);
+    const loadDocs = async () => {
+      const { data, error } = await supabase
+        .from("documents")
+        .select("*");
+
+      if (error) {
+        console.error("Load documents error:", error);
+        setDocs([]);
+        return;
+      }
+
+      setDocs(data ?? []);
+    };
+
+    loadDocs();
   }, []);
 
   const filteredDocs = docs.filter(d => activeTab === 'all' || d.type === activeTab);
@@ -90,7 +105,7 @@ export function DocumentCenter() {
               </div>
               <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight leading-tight group-hover:text-accent transition-colors">{doc.title}</h3>
               <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-8">{doc.category_name} | {doc.power_range}</div>
-              
+
               <button
                 onClick={() => handleDownload(doc)}
                 className="w-full py-4 bg-slate-950 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-accent transition-all flex items-center justify-center gap-3"
@@ -109,7 +124,7 @@ export function DocumentCenter() {
             <button onClick={() => setShowGate(null)} className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors">
               <X className="h-6 w-6" />
             </button>
-            
+
             {leadStatus === 'success' ? (
               <div className="text-center py-12">
                 <div className="w-20 h-20 bg-orange-50 text-accent rounded-full flex items-center justify-center mx-auto mb-8">
