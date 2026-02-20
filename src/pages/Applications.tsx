@@ -150,7 +150,9 @@ export function Applications() {
 }
 
 export function ApplicationDetail({ slug }: { slug: string }) {
+  
   const [app, setApp] = React.useState<any>(null);
+  const [relatedApps, setRelatedApps] = React.useState<any[]>([]);
 
   React.useEffect(() => {
     const loadArticle = async () => {
@@ -171,6 +173,27 @@ export function ApplicationDetail({ slug }: { slug: string }) {
 
     loadArticle();
   }, [slug]);
+
+  React.useEffect(() => {
+    if (!app) return;
+
+    const loadRelated = async () => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("*")
+        .limit(4);
+
+      if (error) {
+        console.error("Load related applications error:", error);
+        setRelatedApps([]);
+        return;
+      }
+
+      setRelatedApps(data ?? []);
+    };
+
+    loadRelated();
+  }, [app]);
 
   if (!app) return <div className="p-20 text-center">Đang tải...</div>;
 
@@ -385,18 +408,19 @@ export function ApplicationDetail({ slug }: { slug: string }) {
               </h3>
 
               <div className="space-y-5 text-sm font-bold leading-relaxed">
-                <Link to="/kien-thuc/may-cnc-bao-undervoltage" className="block hover:text-accent">
-                  Máy CNC báo lỗi undervoltage khi chạy tải
-                </Link>
-                <Link to="/kien-thuc/motor-khoi-dong-nhay-aptomat" className="block hover:text-accent">
-                  Motor khởi động làm nhảy aptomat tổng
-                </Link>
-                <Link to="/kien-thuc/may-laser-reset" className="block hover:text-accent">
-                  Máy laser reset khi máy khác khởi động
-                </Link>
-                <Link to="/kien-thuc/sut-ap-cuoi-xuong" className="block hover:text-accent">
-                  Điện yếu ở cuối nhà xưởng
-                </Link>
+                {relatedApps.length === 0 && (
+                  <p className="text-slate-400">Đang tìm sự cố tương tự...</p>
+                )}
+
+                {relatedApps.map((item) => (
+                  <Link
+                    key={item.slug}
+                    to={`/kien-thuc/${item.slug}`}
+                    className="block hover:text-accent"
+                  >
+                    {item.title}
+                  </Link>
+                ))}
               </div>
             </div>
 
