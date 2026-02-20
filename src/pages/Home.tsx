@@ -1,199 +1,235 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Factory, ArrowRight } from 'lucide-react';
+import { Zap, Factory, ArrowRight, AlertTriangle, CheckCircle2, Activity, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export function Home() {
-  const [projects, setProjects] = React.useState<any[]>([]);
-  const [capacity, setCapacity] = React.useState<any[]>([]);
+  const [articles, setArticles] = React.useState<any[]>([]);
 
   React.useEffect(() => {
-    fetch('/api/projects').then(res => res.json()).then(setProjects);
-    fetch('/api/manufacturing').then(res => res.json()).then(setCapacity);
+    fetch('/api/articles').then(res => res.json()).then(data => setArticles(data.slice(0, 6)));
   }, []);
 
+  const symptoms = [
+    { title: "Máy chạy yếu khi ở cuối xưởng", slug: "may-chay-yeu-khi-o-cuoi-xuong" },
+    { title: "Motor nóng nhanh dù không quá tải", slug: "motor-nong-nhanh-du-khong-qua-tai" },
+    { title: "Máy CNC hoặc biến tần báo lỗi điện áp", slug: "may-cnc-hoac-bien-tan-bao-loi-dien-ap" },
+    { title: "Nhảy aptomat khi khởi động máy lớn", slug: "nhay-aptomat-khi-khoi-dong-may-lon" },
+    { title: "Bật máy hàn thì đèn nhấp nháy, PLC reset", slug: "bat-may-han-thi-den-nhap-nhay-plc-reset" },
+    { title: "Điện áp lúc cao lúc thấp theo giờ", slug: "dien-ap-luc-cao-luc-thap-theo-gio" },
+    { title: "Không rõ nhưng máy hoạt động không ổn định", slug: "khong-ro-nhung-may-hoat-dong-khong-on-dinh" }
+  ];
+
+  const solutions = [
+    {
+      title: "Ổn định điện cho máy CNC",
+      desc: "Tránh lỗi undervoltage và reset driver",
+      icon: Settings
+    },
+    {
+      title: "Cải thiện điện cuối xưởng",
+      desc: "Giảm sụt áp khi tải tăng",
+      icon: Activity
+    },
+    {
+      title: "Nguồn riêng cho máy công suất lớn",
+      desc: "Tránh ảnh hưởng toàn hệ thống",
+      icon: Zap
+    },
+    {
+      title: "Biến áp cho máy nhập khẩu",
+      desc: "Đúng điện áp – đúng công suất – không quá tải",
+      icon: Factory
+    }
+  ];
+
   return (
-    <div className="space-y-0 pb-0">
-      {/* Hero Section - Industrial Factory Focus */}
-      <section className="relative min-h-[700px] flex items-center bg-slate-950 overflow-hidden">
+    <div className="space-y-0 pb-0 bg-white">
+      {/* 1. HERO SECTION */}
+      <section className="relative min-h-[800px] flex items-center bg-slate-950 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://picsum.photos/seed/factory-real/1920/1080"
-            alt="Nhà máy sản xuất máy biến áp IPS"
-            className="w-full h-full object-cover opacity-40 grayscale-[0.5]"
+            src="https://picsum.photos/seed/factory-technical/1920/1080"
+            alt="Technical Factory Context"
+            className="w-full h-full object-cover opacity-30 grayscale"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-950/80 to-slate-950"></div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20">
+          <div className="max-w-4xl">
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/20 border border-accent/30 rounded-lg text-accent text-[10px] font-black uppercase tracking-[0.2em] mb-8">
-                <Factory className="h-3 w-3" /> Nhà sản xuất trực tiếp
+                <AlertTriangle className="h-3 w-3" /> Chẩn đoán sự cố điện công nghiệp
               </div>
-              <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] mb-8 uppercase tracking-tighter">
-                Nhà sản xuất <br />
-                <span className="text-accent">Máy biến áp</span> <br />
-                Ổn áp công nghiệp
+              <h1 className="text-4xl md:text-7xl font-black text-white leading-[1.1] mb-8 uppercase tracking-tighter">
+                Xưởng bị yếu điện, máy hay lỗi <br />
+                <span className="text-accent">nhưng không rõ nguyên nhân?</span>
               </h1>
-              <p className="text-xl text-slate-400 mb-12 leading-relaxed max-w-xl font-medium">
-                Thiết kế theo yêu cầu kỹ thuật | OEM | Cung cấp toàn quốc. <br />
-                Đảm bảo chất lượng điện năng cho mọi dây chuyền sản xuất.
+              <p className="text-xl md:text-2xl text-white font-bold mb-4 leading-tight">
+                Đừng thay thiết bị trước khi biết chính xác vấn đề. <br />
+                Nhập vài thông số — kỹ sư sẽ phân tích giúp bạn trong 15 phút.
               </p>
-              <div className="flex flex-wrap gap-4">
-                <Link to="/gui-thong-so" className="px-10 py-5 bg-accent text-white rounded-xl font-black text-lg hover:brightness-110 transition-all shadow-2xl shadow-orange-900/40 uppercase tracking-tight">
-                  Nhận báo giá ngay
+              <p className="text-lg text-slate-400 mb-12 leading-relaxed max-w-2xl font-medium">
+                Phần lớn nhà xưởng gặp sự cố không phải do máy hỏng mà do điện áp sụt, lệch pha hoặc nguồn không đủ khi tải tăng. 
+                Chúng tôi hỗ trợ kiểm tra miễn phí trước khi bạn phải tốn chi phí sửa chữa.
+              </p>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <div className="space-y-3">
+                  <Link to="/gui-thong-so" className="inline-flex px-10 py-6 bg-accent text-white rounded-xl font-black text-xl hover:brightness-110 transition-all shadow-2xl shadow-orange-900/40 uppercase tracking-tight">
+                    Bắt đầu kiểm tra sự cố
+                  </Link>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center sm:text-left">
+                    Không cần mua — vẫn hỗ trợ xác định nguyên nhân
+                  </p>
+                </div>
+                <Link to="/kien-thuc" className="px-10 py-6 bg-white/5 backdrop-blur-md text-white border border-white/20 rounded-xl font-black text-xl hover:bg-white/10 transition-all uppercase tracking-tight">
+                  Xem các lỗi thường gặp
                 </Link>
-                <Link to="/san-pham" className="px-10 py-5 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-xl font-black text-lg hover:bg-white/20 transition-all uppercase tracking-tight">
-                  Xem danh mục sản phẩm
-                </Link>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, delay: 0.2 }}
-              className="hidden lg:block relative"
-            >
-              <img 
-                src="https://picsum.photos/seed/transformer-hero/800/800" 
-                alt="Máy biến áp 2500kVA" 
-                className="rounded-[3rem] shadow-2xl border-8 border-white/5"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute -bottom-10 -left-10 bg-white p-8 rounded-3xl shadow-2xl border border-slate-100">
-                <div className="text-4xl font-black text-primary mb-1">2500kVA</div>
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Công suất tối đa</div>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Trust Bar */}
-      <section className="bg-primary py-8 border-y border-white/10">
+      {/* 2. SYMPTOMS SECTION */}
+      <section className="py-32 bg-slate-50 industrial-grid border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { label: 'Năm kinh nghiệm', value: '15+' },
-              { label: 'Dự án lắp đặt', value: '2,500+' },
-              { label: 'Công suất/tháng', value: '5,000kVA' },
-              { label: 'Bảo hành tận nơi', value: '24-48T' },
-            ].map((item, i) => (
-              <div key={i} className="border-r border-white/10 last:border-0">
-                <div className="text-2xl font-black text-accent">{item.value}</div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{item.label}</div>
-              </div>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Bạn đang gặp tình trạng nào trong xưởng?</h2>
+            <p className="text-slate-500 font-medium max-w-2xl mx-auto text-lg">Chọn đúng hiện tượng bạn thấy — hệ thống sẽ gợi ý nguyên nhân phổ biến nhất.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {symptoms.map((symptom, i) => (
+              <Link key={i} to={`/kien-thuc/${symptom.slug}`} className="p-8 bg-white border border-slate-200 rounded-2xl shadow-sm hover:border-accent hover:shadow-xl transition-all group flex items-start gap-4">
+                <div className="p-3 bg-slate-50 rounded-xl text-slate-400 group-hover:text-accent group-hover:bg-orange-50 transition-colors">
+                  <Activity className="h-5 w-5" />
+                </div>
+                <span className="font-bold text-slate-900 leading-tight">{symptom.title}</span>
+              </Link>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Main Products Grid - Industrial Style */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="flex justify-between items-end mb-16">
-          <div>
-            <h2 className="text-4xl font-black text-slate-900 mb-4 uppercase tracking-tighter">Sản phẩm chủ lực</h2>
-            <p className="text-slate-500 font-medium">Thiết bị điện công nghiệp đạt chuẩn IEC, TCVN.</p>
+          
+          <div className="mt-16 text-center">
+            <div className="inline-flex items-center gap-3 p-6 bg-white border border-slate-200 rounded-2xl shadow-sm">
+              <AlertTriangle className="h-6 w-6 text-accent" />
+              <p className="text-sm text-slate-600 font-bold italic">
+                Những dấu hiệu trên thường liên quan đến sụt áp hoặc mất cân bằng tải, không phải do thiết bị.
+              </p>
+            </div>
           </div>
-          <Link to="/san-pham" className="hidden md:flex items-center gap-2 text-accent font-black uppercase text-xs tracking-widest hover:gap-4 transition-all">
-            Tất cả sản phẩm <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { name: 'Máy Biến Áp 3 Pha', slug: 'may-bien-ap-3-pha', range: '10kVA - 2500kVA', vin: '22kV/35kV/380V', img: 'https://picsum.photos/seed/p1/600/600' },
-            { name: 'Ổn Áp Công Nghiệp', slug: 'on-ap-cong-nghiep', range: '50kVA - 1000kVA', vin: '160V - 430V', img: 'https://picsum.photos/seed/p2/600/600' },
-            { name: 'Trạm Biến Áp Kios', slug: 'bien-ap-trung-the', range: '100kVA - 2000kVA', vin: '22kV/35kV', img: 'https://picsum.photos/seed/p3/600/600' },
-          ].map((cat, i) => (
-            <Link key={i} to={`/san-pham?cat=${cat.slug}`} className="group bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-accent hover:shadow-2xl transition-all flex flex-col">
-              <div className="aspect-square overflow-hidden bg-slate-100">
-                <img src={cat.img} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
-              </div>
-              <div className="p-8">
-                <h3 className="text-2xl font-black text-slate-900 mb-6 group-hover:text-accent transition-colors uppercase tracking-tighter">{cat.name}</h3>
-                <div className="space-y-3 mb-8">
-                  <div className="flex justify-between text-[10px] font-black uppercase tracking-widest border-b border-slate-50 pb-2">
-                    <span className="text-slate-400">Dải công suất</span>
-                    <span className="text-slate-900">{cat.range}</span>
-                  </div>
-                  <div className="flex justify-between text-[10px] font-black uppercase tracking-widest border-b border-slate-50 pb-2">
-                    <span className="text-slate-400">Điện áp phổ biến</span>
-                    <span className="text-slate-900">{cat.vin}</span>
-                  </div>
-                </div>
-                <div className="w-full py-4 bg-slate-950 text-white text-center rounded-xl font-black text-xs uppercase tracking-widest group-hover:bg-accent transition-colors">
-                  Xem chi tiết catalogue
-                </div>
-              </div>
-            </Link>
-          ))}
         </div>
       </section>
 
-      {/* Manufacturing Proof */}
-      <section className="bg-slate-50 py-24 industrial-grid border-y border-slate-200">
+      {/* 3. TRUST SECTION */}
+      <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div>
-              <h2 className="text-4xl font-black text-slate-900 mb-8 uppercase tracking-tighter">Năng lực sản xuất thực tế</h2>
-              <div className="space-y-10">
-                {capacity.map((cap, i) => (
-                  <div key={i} className="flex gap-8 group">
-                    <div className="text-5xl font-black text-slate-200 group-hover:text-accent transition-colors leading-none">0{cap.sort_order}</div>
-                    <div>
-                      <h4 className="font-black text-slate-900 mb-2 uppercase tracking-tight text-lg">{cap.title}</h4>
-                      <p className="text-sm text-slate-500 leading-relaxed font-medium">{cap.description}</p>
-                    </div>
+            <div className="relative">
+              <img 
+                src="https://picsum.photos/seed/engineer-check/800/1000" 
+                alt="Engineer Checking" 
+                className="rounded-[3rem] shadow-2xl border-8 border-slate-50"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute -bottom-10 -right-10 bg-primary text-white p-12 rounded-[2.5rem] shadow-2xl border-4 border-white/10">
+                <div className="text-5xl font-black mb-2 text-accent">70%</div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Lỗi lặp lại do sai nguyên nhân</div>
+              </div>
+            </div>
+            <div className="space-y-10">
+              <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">Vì sao không nên mua thiết bị ngay?</h2>
+              <div className="space-y-6 text-lg text-slate-600 font-medium leading-relaxed">
+                <p>
+                  Khoảng 70% trường hợp xưởng thay ổn áp hoặc biến áp nhưng lỗi vẫn lặp lại. 
+                  Nguyên nhân thực tế là sụt áp trên đường dây, cấp nguồn sai vị trí hoặc dòng khởi động quá lớn.
+                </p>
+                <div className="p-8 bg-slate-50 rounded-3xl border-2 border-slate-100">
+                  <p className="font-black text-slate-900 uppercase text-xs tracking-widest mb-4">Nếu không xác định đúng nguyên nhân:</p>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-3 text-red-600 font-bold">
+                      <AlertTriangle className="h-4 w-4" /> Motor sẽ tiếp tục nóng
+                    </li>
+                    <li className="flex items-center gap-3 text-red-600 font-bold">
+                      <AlertTriangle className="h-4 w-4" /> Biến tần tiếp tục lỗi
+                    </li>
+                    <li className="flex items-center gap-3 text-red-600 font-bold">
+                      <AlertTriangle className="h-4 w-4" /> Hao điện nhưng không cải thiện
+                    </li>
+                  </ul>
+                </div>
+                <p className="font-bold text-slate-900">
+                  Vì vậy chúng tôi luôn kiểm tra thông số vận hành trước, sau đó mới đề xuất giải pháp phù hợp.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {[
+                  "Không bán thiết bị khi chưa rõ nguyên nhân",
+                  "Ưu tiên giải pháp ít tốn kém trước",
+                  "Có thể chỉ cần thay đổi cách cấp nguồn"
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 text-slate-900 font-black text-xs uppercase tracking-tight">
+                    <CheckCircle2 className="h-5 w-5 text-accent" /> {item}
                   </div>
                 ))}
               </div>
-              <Link to="/nang-luc" className="inline-flex items-center gap-3 mt-12 px-8 py-4 bg-primary text-white rounded-xl font-black uppercase text-xs tracking-widest hover:bg-slate-800 transition-all">
-                Tham quan nhà xưởng <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-6">
-              <img src="https://picsum.photos/seed/m1/500/700" alt="Quy trình 1" className="rounded-3xl shadow-2xl border-4 border-white" referrerPolicy="no-referrer" />
-              <img src="https://picsum.photos/seed/m2/500/700" alt="Quy trình 2" className="rounded-3xl shadow-2xl border-4 border-white mt-12" referrerPolicy="no-referrer" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Projects */}
-      <section className="bg-slate-950 py-24 text-white overflow-hidden">
+      {/* 4. KNOWLEDGE SECTION */}
+      <section className="py-32 bg-slate-950 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-16">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div>
-              <h2 className="text-4xl font-black mb-4 uppercase tracking-tighter">Công trình tiêu biểu</h2>
-              <p className="text-slate-500 font-medium">Minh chứng cho năng lực triển khai thực tế trên toàn quốc.</p>
+              <h2 className="text-4xl font-black mb-6 uppercase tracking-tighter">Các vấn đề điện nhà xưởng thường gặp</h2>
+              <p className="text-slate-500 font-medium text-lg">Tài liệu thực tế từ các hệ thống đã xử lý — giúp bạn hiểu đúng trước khi quyết định.</p>
             </div>
-            <Link to="/cong-trinh" className="text-accent font-black uppercase text-xs tracking-widest flex items-center gap-2 hover:gap-4 transition-all">
-              Tất cả dự án <ArrowRight className="h-4 w-4" />
+            <Link to="/kien-thuc" className="inline-flex items-center gap-3 text-accent font-black uppercase text-xs tracking-widest hover:gap-5 transition-all">
+              Xem toàn bộ hướng dẫn kỹ thuật <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {projects.map((p, i) => (
-              <div key={i} className="group relative overflow-hidden rounded-[2.5rem] aspect-[16/10] border border-white/5">
-                <img src={p.image_url} alt={p.title} className="absolute inset-0 w-full h-full object-cover brightness-[0.3] group-hover:scale-105 transition-transform duration-1000" referrerPolicy="no-referrer" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-                <div className="absolute bottom-0 left-0 p-10 w-full">
-                  <div className="flex gap-3 mb-4">
-                    <span className="px-3 py-1 bg-accent text-white text-[10px] font-black uppercase tracking-widest rounded-full">{p.industry}</span>
-                    <span className="px-3 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full">{p.kva} kVA</span>
-                  </div>
-                  <h3 className="text-3xl font-black mb-6 uppercase tracking-tight leading-tight">{p.title}</h3>
-                  <Link to={`/cong-trinh/${p.slug}`} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-accent border-b-2 border-accent/30 pb-1 hover:border-accent transition-all">
-                    Xem Case Study kỹ thuật <ArrowRight className="h-4 w-4" />
-                  </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {articles.map((art, i) => (
+              <Link key={i} to={`/kien-thuc/${art.slug}`} className="group bg-white/5 border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-all flex flex-col h-full">
+                <div className="text-accent font-black text-[10px] uppercase tracking-widest mb-4">{art.category}</div>
+                <h3 className="text-xl font-black mb-6 group-hover:text-accent transition-colors uppercase tracking-tight leading-tight flex-grow">
+                  {art.title}
+                </h3>
+                <div className="flex items-center gap-2 text-white/40 font-black text-[10px] uppercase tracking-widest">
+                  Đọc bài viết <ArrowRight className="h-3 w-3" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. SOLUTIONS SECTION */}
+      <section className="py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Các hướng xử lý phổ biến</h2>
+            <p className="text-slate-500 font-medium max-w-2xl mx-auto text-lg">Sau khi xác định nguyên nhân, giải pháp có thể không giống bạn nghĩ.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {solutions.map((sol, i) => (
+              <div key={i} className="p-10 bg-slate-50 border border-slate-200 rounded-[2.5rem] flex gap-8 group hover:border-accent transition-all">
+                <div className="p-5 bg-white rounded-2xl text-accent shadow-sm group-hover:shadow-xl transition-all shrink-0 h-fit">
+                  <sol.icon className="h-8 w-8" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-tight">{sol.title}</h3>
+                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">{sol.desc}</p>
                 </div>
               </div>
             ))}
@@ -201,58 +237,25 @@ export function Home() {
         </div>
       </section>
 
-      {/* Full Width Technical RFQ Form */}
-      <section className="bg-white py-24">
+      {/* 6. FINAL CTA */}
+      <section className="py-32 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-slate-50 border-2 border-slate-100 rounded-[3rem] p-10 md:p-20 shadow-2xl relative overflow-hidden">
+          <div className="bg-slate-950 rounded-[3rem] p-12 md:p-24 text-white relative overflow-hidden shadow-2xl text-center">
             <div className="relative z-10">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Yêu cầu báo giá kỹ thuật (RFQ)</h2>
-                <p className="text-slate-500 font-medium">Gửi thông số máy hoặc bản vẽ, kỹ sư của chúng tôi sẽ phản hồi trong 2 giờ.</p>
+              <h2 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter">Bạn có thể gửi thông số để kiểm tra trước</h2>
+              <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
+                Chỉ cần công suất máy lớn nhất và khoảng cách dây, chúng tôi có thể xác định nguyên nhân chính xác tới 80%.
+              </p>
+              <div className="space-y-4">
+                <Link to="/gui-thong-so" className="inline-flex px-12 py-6 bg-accent text-white rounded-xl font-black text-xl hover:brightness-110 transition-all shadow-2xl shadow-orange-900/40 uppercase tracking-tight">
+                  Gửi thông số xưởng
+                </Link>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                  Phản hồi trong giờ làm việc: 5–15 phút
+                </p>
               </div>
-              
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Tên công ty / Đơn vị</label>
-                  <input type="text" className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-accent outline-none font-bold" placeholder="Cty TNHH..." />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Số điện thoại liên hệ</label>
-                  <input type="tel" className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-accent outline-none font-bold" placeholder="09xx xxx xxx" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Công suất yêu cầu (kVA)</label>
-                  <input type="text" className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-accent outline-none font-bold" placeholder="Ví dụ: 250kVA" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ứng dụng thiết bị</label>
-                  <input type="text" className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-accent outline-none font-bold" placeholder="CNC, Solar, Nhà máy..." />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mô tả yêu cầu kỹ thuật đặc biệt</label>
-                  <textarea className="w-full px-6 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-accent outline-none font-bold" rows={4} placeholder="Ví dụ: Điện áp vào 22kV, ra 400V, làm mát ONAN..."></textarea>
-                </div>
-                <div className="md:col-span-2">
-                  <div className="p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center group hover:border-accent transition-all relative bg-white">
-                    <input 
-                      type="file" 
-                      className="absolute inset-0 opacity-0 cursor-pointer" 
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) alert(`Đã chọn tệp: ${file.name}`);
-                      }}
-                    />
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-accent transition-colors">Tải lên bản vẽ hoặc ảnh tem máy (PDF, JPG, PNG)</p>
-                  </div>
-                </div>
-                <div className="md:col-span-2">
-                  <button type="submit" className="w-full py-6 bg-accent text-white rounded-2xl font-black text-xl uppercase tracking-tighter hover:brightness-110 transition-all shadow-2xl shadow-orange-900/20 flex items-center justify-center gap-4">
-                    Gửi yêu cầu & Nhận báo giá <ArrowRight className="h-6 w-6" />
-                  </button>
-                </div>
-              </form>
             </div>
-            <Zap className="absolute -right-20 -bottom-20 h-80 w-80 text-slate-200/50 rotate-12" />
+            <Zap className="absolute -right-20 -bottom-20 h-96 w-96 text-white/5 rotate-12" />
           </div>
         </div>
       </section>

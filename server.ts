@@ -325,6 +325,207 @@ Không đo khi máy nghỉ. Phải đo điện áp từng pha khi tải nặng n
     "Phân tích kỹ thuật hiện tượng motor chạy không đủ lực, rung, nóng nhanh do điện áp 3 pha không cân bằng hoặc yếu.",
     "https://picsum.photos/seed/art3/800/600"
   );
+
+  insertArticle.run(
+    "may-chay-yeu-khi-o-cuoi-xuong",
+    "Máy chạy yếu khi ở cuối xưởng: Nguyên nhân và cách đo đúng",
+    "error",
+    `# Máy chạy yếu khi ở cuối xưởng: Nguyên nhân và cách đo đúng
+
+## Hiện tượng
+- Máy ở gần tủ điện chạy bình thường.
+- Máy ở cuối dây chạy ì, không lên tải.
+- Có tiếng “gằn” khi tăng tốc.
+- Ampe cao bất thường nhưng không nhảy CB.
+- **Nhiều người kết luận: motor yếu → Sai trong 70% trường hợp.**
+
+## Bản chất điện học
+Điện áp không mất ở trạm — nó mất trên dây. 
+Công thức sụt áp: ΔU = I × R
+Trong đó điện trở dây: R = ρ × (L/S)
+
+- Dây càng dài → sụt áp càng lớn.
+- Tải càng nặng → sụt áp tăng mạnh.
+- Motor ở cuối xưởng luôn nhận điện áp thấp hơn motor đầu xưởng.
+
+## Điều xảy ra bên trong motor
+Motor cần công suất cơ không đổi: P = U × I × cosφ.
+Khi U giảm → I tăng để bù công suất.
+**Hậu quả:** Tăng nhiệt cuộn dây, mất moment, rung và hao điện.
+Motor không yếu — nó đang bị “bỏ đói điện áp”.
+
+## Cách đo đúng (đa số đo sai)
+- **Sai phổ biến:** Đo điện áp khi không tải → thấy đủ 380V → kết luận điện tốt.
+- **Đúng:** Chạy máy tải nặng nhất, đo điện áp ngay tại đầu cực motor và so sánh với đầu tủ. Nếu chênh > 10–15V → sụt áp đường dây.
+
+## Hướng xử lý chuẩn
+Không phải thay motor. Thứ tự đúng:
+1. Đo sụt áp thực tế.
+2. Kiểm tra chiều dài và tiết diện dây.
+3. Tách nguồn máy lớn.
+4. Đặt nguồn gần tải.
+5. Sau cùng mới dùng ổn áp.`,
+    "Máy ở cuối dây chạy ì, không lên tải? Đừng vội thay motor. Tìm hiểu về sụt áp đường dây và cách đo kiểm chính xác.",
+    "https://picsum.photos/seed/symptom1/800/600"
+  );
+
+  insertArticle.run(
+    "motor-nong-nhanh-du-khong-qua-tai",
+    "Motor nóng nhanh dù không quá tải: Hiểm họa từ sụt áp",
+    "error",
+    `# Motor nóng nhanh dù không quá tải: Hiểm họa từ sụt áp
+
+## Hiện tượng
+- Chạy 15–30 phút là nóng bỏng.
+- Kiểm tra không thấy quá dòng.
+- Bạc đạn, quạt làm mát vẫn tốt.
+- **Thường bị quy cho: Motor dỏm. Nhưng thực tế thường không phải vậy.**
+
+## Nguyên nhân thật
+Motor nóng không phải do công suất mà do từ thông sai.
+Từ thông Φ tỉ lệ thuận với U/f. Khi điện áp thấp → từ thông giảm → motor mất moment → dòng điện tăng lên để bù lại.
+Tổn hao đồng: P_cu = I²R. Chỉ cần tăng 20% dòng → nhiệt tăng ~44%.
+
+## Vì sao ampe vẫn “đúng”?
+Ampe kìm (Clamp meter) chỉ đo giá trị trung bình. Nhưng motor bị méo dạng dòng do thiếu áp, dẫn đến hiện tượng phát nhiệt cực lớn mà thiết bị đo thông thường khó phát hiện.
+
+## Cách kiểm tra chuẩn
+1. Đo điện áp khi đang có tải.
+2. So sánh điện áp lúc motor khởi động và khi đã ổn định.
+3. Kiểm tra độ lệch pha (nếu lệch > 5% → motor sẽ quá nhiệt).
+
+## Hướng xử lý
+Ổn định điện áp trước, không thay motor trước.`,
+    "Tại sao motor nóng bỏng dù dòng điện vẫn trong ngưỡng cho phép? Tìm hiểu mối liên hệ giữa điện áp và từ thông motor.",
+    "https://picsum.photos/seed/symptom2/800/600"
+  );
+
+  insertArticle.run(
+    "may-cnc-hoac-bien-tan-bao-loi-dien-ap",
+    "Máy CNC hoặc biến tần báo lỗi điện áp (Undervoltage)",
+    "error",
+    `# Máy CNC hoặc biến tần báo lỗi điện áp (Undervoltage)
+
+## Hiện tượng
+- Lỗi undervoltage xuất hiện ngẫu nhiên.
+- Thường xảy ra đúng lúc tăng tốc spindle hoặc vào dao nặng.
+- Reset máy là chạy lại được.
+- **99% không phải lỗi driver hay phần cứng máy.**
+
+## Bên trong biến tần xảy ra gì?
+Biến tần chỉnh lưu AC → DC bus. Điện áp DC bus xấp xỉ 1.35 × Vac.
+Khi Vac tụt 10% → DC bus tụt mạnh → mạch bảo vệ driver ngắt để an toàn.
+Motor vẫn có thể quay được ở áp thấp, nhưng mạch điều khiển điện tử thì không cho phép.
+
+## Sai lầm phổ biến
+Nhiều xưởng vội vàng thay Servo, Driver hoặc bộ nguồn nhưng lỗi vẫn lặp lại vì nguyên nhân gốc rễ là điện lưới sụt áp tức thời.
+
+## Cách đo đúng
+Phải đo điện áp tại đầu vào máy đúng lúc spindle tăng tốc. Không đo khi máy đang nghỉ (idle).
+
+## Hướng xử lý
+1. Đi nguồn riêng cho máy CNC.
+2. Giảm sụt áp trên dây dẫn.
+3. Sử dụng ổn áp phản ứng nhanh chuyên dụng.`,
+    "Giải quyết triệt để lỗi Undervoltage trên máy CNC và biến tần. Tại sao đo điện áp lúc máy nghỉ lại không có giá trị?",
+    "https://picsum.photos/seed/symptom3/800/600"
+  );
+
+  insertArticle.run(
+    "nhay-aptomat-khi-khoi-dong-may-lon",
+    "Nhảy Aptomat khi khởi động máy lớn: Do quá dòng tức thời",
+    "error",
+    `# Nhảy Aptomat khi khởi động máy lớn: Do quá dòng tức thời
+
+## Hiện tượng
+- Máy chạy bình thường sau khi đã khởi động xong.
+- Chỉ nhảy CB (Aptomat) đúng lúc vừa nhấn nút Start.
+
+## Bản chất kỹ thuật
+Dòng khởi động của motor thường gấp 5 đến 7 lần dòng định mức (I_start = 5-7 × I_n).
+CB nhảy không phải vì quá tải lâu dài, mà vì dòng khởi động vượt quá ngưỡng cắt tức thời của CB.
+
+## Sai lầm nguy hiểm
+Tự ý tăng Ampe của CB mà không kiểm tra tiết diện dây. Điều này có thể dẫn đến cháy dây dẫn trước khi CB kịp nhảy.
+
+## Hướng xử lý đúng
+1. Sử dụng bộ khởi động mềm (Soft starter).
+2. Sử dụng biến tần (VFD) để điều khiển tốc độ và dòng khởi động.
+3. Thiết lập quy trình khởi động tuần tự cho các máy lớn trong xưởng.`,
+    "Tại sao Aptomat nhảy dù công suất máy vẫn nằm trong ngưỡng? Tìm hiểu về dòng Inrush và cách xử lý an toàn.",
+    "https://picsum.photos/seed/symptom4/800/600"
+  );
+
+  insertArticle.run(
+    "bat-may-han-thi-den-nhap-nhay-plc-reset",
+    "Bật máy hàn thì đèn nhấp nháy, PLC reset: Xử lý nhiễu điện",
+    "error",
+    `# Bật máy hàn thì đèn nhấp nháy, PLC reset: Xử lý nhiễu điện
+
+## Hiện tượng
+- Đèn chiếu sáng trong xưởng bị chớp nháy khi thợ hàn làm việc.
+- Màn hình PLC bị treo hoặc tự động reset.
+- Các máy nhạy cảm khác báo lỗi ngẫu nhiên.
+
+## Nguyên nhân
+Máy hàn là loại tải xung, dòng điện thay đổi cực nhanh theo mili-giây. Điều này gây ra dao động điện áp toàn hệ thống và tạo ra nhiễu cao tần phản hồi ngược lại lưới điện. PLC và các mạch điều khiển điện tử cực kỳ nhạy cảm với các dao động này.
+
+## Cách kiểm tra
+Cần sử dụng Oscilloscope hoặc thiết bị Power Logger để thấy được các xung điện áp “nhảy” bất thường.
+
+## Xử lý
+1. Đi nguồn riêng hoàn toàn cho khu vực máy hàn.
+2. Sử dụng biến áp cách ly (Isolation Transformer) làm bộ đệm cho các máy nhạy cảm.
+3. Lắp đặt ổn áp tổng có bộ lọc nhiễu.`,
+    "Máy hàn gây nhiễu làm treo hệ thống điều khiển? Tìm hiểu cách cách ly tải xung để bảo vệ PLC và máy CNC.",
+    "https://picsum.photos/seed/symptom5/800/600"
+  );
+
+  insertArticle.run(
+    "dien-ap-luc-cao-luc-thap-theo-gio",
+    "Điện áp lúc cao lúc thấp theo giờ: Cách sống chung với lưới điện yếu",
+    "standard",
+    `# Điện áp lúc cao lúc thấp theo giờ: Cách sống chung với lưới điện yếu
+
+## Hiện tượng
+- Buổi sáng máy chạy rất tốt, ổn định.
+- Buổi chiều hoặc giờ cao điểm máy báo lỗi, chạy yếu.
+- Hiện tượng lặp lại theo chu kỳ thời gian trong ngày.
+
+## Nguyên nhân
+Thường không phải do nội bộ xưởng mà do lưới điện khu vực. Vào giờ cao điểm, tổng dòng tải trên đường dây trung thế tăng cao, gây sụt áp đường dây trước khi đến trạm biến áp của bạn.
+
+## Hậu quả
+Máy móc chạy với hiệu suất khác nhau ở mỗi ca sản xuất, gây khó khăn cho việc quản lý chất lượng và bảo trì thiết bị.
+
+## Giải pháp
+Bạn không thể sửa lỗi từ phía điện lực, giải pháp duy nhất là lắp đặt hệ thống ổn áp công nghiệp tại xưởng để chủ động ổn định điện áp đầu ra cho máy móc.`,
+    "Tại sao điện áp thay đổi theo giờ trong ngày? Giải pháp ổn định nguồn điện cho các nhà xưởng trong khu vực điện yếu.",
+    "https://picsum.photos/seed/symptom6/800/600"
+  );
+
+  insertArticle.run(
+    "khong-ro-nhung-may-hoat-dong-khong-on-dinh",
+    "Máy hoạt động không ổn định, lỗi ngẫu nhiên: 80% do chất lượng điện",
+    "error",
+    `# Máy hoạt động không ổn định, lỗi ngẫu nhiên: 80% do chất lượng điện
+
+## Dấu hiệu chung
+- Lỗi xuất hiện ngẫu nhiên, không có quy luật.
+- Không thể lặp lại lỗi khi kỹ thuật đến kiểm tra.
+- Đã thay thế nhiều linh kiện nhưng tình trạng vẫn còn.
+
+## Bản chất vấn đề
+80% các lỗi “ma” này xuất phát từ chất lượng điện năng. Không hẳn là thiếu công suất, mà là do:
+- Sụt áp tức thời (Voltage Sag).
+- Nhiễu điện từ (EMI).
+- Mất cân bằng pha.
+
+## Cách kiểm tra đúng
+Phải thực hiện đo kiểm đúng lúc lỗi đang xảy ra hoặc sử dụng thiết bị ghi log điện áp 24/7. Đo khi máy đang nghỉ hoặc chạy bình thường sẽ không thấy được vấn đề.`,
+    "Truy tìm nguyên nhân các lỗi ngẫu nhiên trên dây chuyền sản xuất. Tại sao chất lượng điện năng là thủ phạm giấu mặt?",
+    "https://picsum.photos/seed/symptom7/800/600"
+  );
 }
 
 async function startServer() {
