@@ -35,12 +35,20 @@ export function Products() {
 
   React.useEffect(() => {
     const loadProducts = async () => {
-      let query = supabase.from("products").select("*");
+      let query = supabase
+        .from("products")
+        .select(`
+        *,
+        categories(*)
+      `);
 
-      if (cat) query = query.eq("category", cat);
-      if (power) query = query.lte("power_max", power);
-      if (vin) query = query.eq("voltage_in", vin);
-      if (vout) query = query.eq("voltage_out", vout);
+      if (cat) query = query.eq("categories.slug", cat);
+
+      if (power) query = query.lte("power_kva", Number(power));
+
+      if (vin) query = query.eq("input_voltage", vin);
+
+      if (vout) query = query.eq("output_voltage", vout);
 
       const { data, error } = await query;
 
@@ -63,18 +71,21 @@ export function Products() {
     setSearchParams(newParams);
   };
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      generateProductListSchema(products),
+    ]
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen">
-      <JsonLd data={{
-        "@context": "https://schema.org",
-        "@type": "ItemList",
-        "itemListElement": products.map((p, i) => ({
-          "@type": "ListItem",
-          "position": i + 1,
-          "url": `${window.location.origin}/san-pham/${p.slug}`
-        }))
-      }} />
-
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData)
+        }}
+      />
       {/* SEO Header */}
       <section className="bg-white border-b border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -255,15 +266,42 @@ export function ProductDetail({ slug }: { slug: string }) {
   const [product, setProduct] = React.useState<any>(null);
 
   React.useEffect(() => {
-    fetch(`/api/products/${slug}`).then(res => res.json()).then(setProduct);
+    const loadArticle = async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+      if (error) {
+        console.error("Load article error:", error);
+        setProduct(null);
+        return;
+      }
+
+      setProduct(data ?? null);
+    };
+
+    loadArticle();
   }, [slug]);
 
   if (!product) return <div className="p-20 text-center">Đang tải...</div>;
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      generateProductSchema(product),
+    ]
+  };
+
   return (
     <div className="bg-white min-h-screen">
-      <JsonLd data={generateProductSchema(product)} />
-
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData)
+        }}
+      />
       {/* Breadcrumbs */}
       <div className="bg-slate-50 border-b border-slate-100 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -386,16 +424,146 @@ export function ProductDetail({ slug }: { slug: string }) {
   );
 }
 
-function generateProductSchema(product: any) {
+export function generateProductListSchema(products: any[]) {
+  const baseUrl = window.location.origin;
+  const url = `${baseUrl}/san-pham`;
+
+  const id = {
+    org: `${baseUrl}#org`,
+    collection: `${url}#collection`,
+    list: `${url}#itemlist`
+  };
+
   return {
-    "@context": "https://schema.org/",
-    "@type": "Product",
-    "name": product.name,
-    "image": product.image_url,
-    "description": product.seo_description || product.description,
-    "brand": {
-      "@type": "Brand",
-      "name": "IPS"
-    }
+    "@graph": [
+
+      {
+        "@type": "Organization",
+        "@id": id.org,
+        "name": "IPS - Industrial Power Solutions",
+        "url": baseUrl,
+        "logo": `${baseUrl}/logo.png`
+      },
+
+      {
+        "@type": "CollectionPage",
+        "@id": id.collection,
+        "url": url,
+        "name": "Danh sách sản phẩm biến áp công nghiệp",
+        "isPartOf": { "@id": id.org },
+        "mainEntity": { "@id": id.list },
+        "inLanguage": "vi-VN"
+      },
+
+      {
+        "@type": "ItemList",
+        "@id": id.list,
+        "numberOfItems": products.length,
+        "itemListElement": products.map((p, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "url": `${baseUrl}/san-pham/${p.slug}`,
+          "item": {
+            "@type": "Product",
+            "@id": `${baseUrl}/san-pham/${p.slug}#product`,
+            "name": p.name
+          }
+        }))
+      }
+
+    ]
+  };
+}
+
+function generateProductSchema(product: any) {
+  const baseUrl = window.location.origin;
+  const url = `${baseUrl}/san-pham/${product.slug}`;
+
+  const id = {
+    org: `${baseUrl}#org`,
+    webpage: `${url}#webpage`,
+    product: `${url}#product`,
+    breadcrumb: `${url}#breadcrumb`
+  };
+
+  return {
+    "@graph": [
+
+      {
+        "@type": "Organization",
+        "@id": id.org,
+        "name": "IPS - Industrial Power Solutions",
+        "url": baseUrl,
+        "logo": `${baseUrl}/logo.png`
+      },
+
+      {
+        "@type": "WebPage",
+        "@id": id.webpage,
+        "url": url,
+        "name": product.name,
+        "isPartOf": { "@id": id.org },
+        "breadcrumb": { "@id": id.breadcrumb },
+        "inLanguage": "vi-VN"
+      },
+
+      {
+        "@type": "BreadcrumbList",
+        "@id": id.breadcrumb,
+        "itemListElement": [
+          { "@type": "ListItem", position: 1, name: "Trang chủ", item: baseUrl },
+          { "@type": "ListItem", position: 2, name: "Sản phẩm", item: `${baseUrl}/san-pham` },
+          { "@type": "ListItem", position: 3, name: product.name, item: url }
+        ]
+      },
+
+      {
+        "@type": "Product",
+        "@id": id.product,
+        "name": product.name,
+        "image": product.image_url,
+        "description": product.seo_description || product.description,
+        "category": "Industrial Transformer",
+        "brand": { "@type": "Brand", "name": "IPS" },
+        "manufacturer": { "@id": id.org },
+
+        "additionalProperty": [
+          { "@type": "PropertyValue", name: "Công suất", value: `${product.power_kva} kVA` },
+          { "@type": "PropertyValue", name: "Điện áp vào", value: product.input_voltage },
+          { "@type": "PropertyValue", name: "Điện áp ra", value: product.output_voltage },
+          { "@type": "PropertyValue", name: "Làm mát", value: product.cooling },
+          { "@type": "PropertyValue", name: "Tổ đấu dây", value: product.wiring },
+          { "@type": "PropertyValue", name: "Tiêu chuẩn", value: product.standard }
+        ],
+
+        "offers": {
+          "@type": "Offer",
+          "url": url,
+          "price": "0",
+          "priceCurrency": "VND",
+          "availability": "https://schema.org/InStock",
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "priceType": "https://schema.org/Quote"
+          }
+        },
+
+        "hasPart": [
+          product.catalog_url && {
+            "@type": "DigitalDocument",
+            "name": "Catalogue PDF",
+            "encodingFormat": "application/pdf",
+            "contentUrl": product.catalog_url
+          },
+          product.drawing_url && {
+            "@type": "DigitalDocument",
+            "name": "Bản vẽ CAD",
+            "encodingFormat": "application/zip",
+            "contentUrl": product.drawing_url
+          }
+        ].filter(Boolean)
+      }
+
+    ]
   };
 }

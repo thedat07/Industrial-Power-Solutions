@@ -11,6 +11,59 @@ export function Projects() {
   const industry = searchParams.get('industry') || '';
   const province = searchParams.get('province') || '';
 
+  const baseUrl = "https://ips-power.vn";
+  const url = `${baseUrl}/cong-trinh${location.search}`;
+
+  const id = {
+    org: `${baseUrl}#org`,
+    website: `${baseUrl}#website`,
+    collection: `${url}#collection`,
+    list: `${url}#list`,
+    service: `${baseUrl}/dich-vu#service`
+  };
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+
+      {
+        "@type": "Organization",
+        "@id": id.org,
+        "name": "IPS - Industrial Power Solutions",
+        "url": baseUrl,
+        "logo": `${baseUrl}/logo.png`
+      },
+
+      {
+        "@type": "WebSite",
+        "@id": id.website,
+        "url": baseUrl,
+        "publisher": { "@id": id.org }
+      },
+
+      {
+        "@type": "Service",
+        "@id": id.service,
+        "name": "Thi công trạm biến áp & ổn áp công nghiệp",
+        "provider": { "@id": id.org },
+        "areaServed": "VN"
+      },
+
+      {
+        "@type": "CollectionPage",
+        "@id": id.collection,
+        "url": url,
+        "name": "Dự án & Công trình tiêu biểu",
+        "isPartOf": { "@id": id.website },
+        "about": "Hồ sơ năng lực triển khai hệ thống điện công nghiệp",
+        "inLanguage": "vi-VN"
+      },
+
+      generateProjectListSchema(projects, id, baseUrl)
+
+    ]
+  };
+
   React.useEffect(() => {
     const loadProjects = async () => {
       let query = supabase.from("projects").select("*");
@@ -34,6 +87,12 @@ export function Projects() {
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData)
+        }}
+      />
       <section className="bg-white border-b border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl font-bold text-slate-900 mb-6">Dự án & Công trình tiêu biểu</h1>
@@ -120,22 +179,95 @@ export function ProjectDetail({ slug }: { slug: string }) {
   const [project, setProject] = React.useState<any>(null);
 
   React.useEffect(() => {
-    fetch(`/api/projects/${slug}`).then(res => res.json()).then(setProject);
+    const loadArticle = async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+      if (error) {
+        console.error("Load article error:", error);
+        setProject(null);
+        return;
+      }
+
+      setProject(data ?? null);
+    };
+
+    loadArticle();
   }, [slug]);
 
   if (!project) return <div className="p-20 text-center">Đang tải...</div>;
+  const baseUrl = window.location.origin;
+  const url = `${baseUrl}/cong-trinh/${project.slug}`;
+
+  const id = {
+    org: `${baseUrl}#org`,
+    webpage: `${url}#webpage`,
+    case: `${url}#casestudy`,
+    service: `${baseUrl}/dich-vu-thi-cong-tram-bien-ap#service`
+  };
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+
+      {
+        "@type": "Organization",
+        "@id": id.org,
+        "name": "IPS - Industrial Power Solutions",
+        "url": baseUrl,
+        "logo": `${baseUrl}/logo.png`
+      },
+
+      {
+        "@type": "WebPage",
+        "@id": id.webpage,
+        "url": url,
+        "name": project.title,
+        "isPartOf": { "@id": id.org },
+        "inLanguage": "vi-VN"
+      },
+
+      {
+        "@type": "Service",
+        "@id": id.service,
+        "name": "Thi công & lắp đặt trạm biến áp công nghiệp",
+        "provider": { "@id": id.org },
+        "areaServed": "VN"
+      },
+
+      {
+        "@type": "CreativeWork",
+        "@subtype": "CaseStudy",
+        "@id": id.case,
+        "name": project.title,
+        "about": project.industry,
+        "description": project.problem,
+        "provider": { "@id": id.org },
+        "mainEntityOfPage": { "@id": id.webpage },
+
+        "hasPart": project.related_products?.map((p: any) => ({
+          "@type": "Product",
+          "@id": `${baseUrl}/san-pham/${p.slug}#product`,
+          "name": p.name
+        })),
+
+        "result": project.result
+      }
+
+    ]
+  };
 
   return (
     <div className="bg-white min-h-screen pb-24">
-      <JsonLd data={{
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": project.title,
-        "description": project.problem,
-        "image": project.image_url,
-        "author": { "@type": "Organization", "name": "IPS Projects" }
-      }} />
-
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData)
+        }}
+      />
       <section className="bg-primary py-24 text-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-wrap gap-4 mb-8">
@@ -220,4 +352,28 @@ export function ProjectDetail({ slug }: { slug: string }) {
       </div>
     </div>
   );
+}
+
+function generateProjectListSchema(projects: any[], id: any, baseUrl: string) {
+  return {
+    "@type": "ItemList",
+    "@id": id.list,
+    "numberOfItems": projects.length,
+    "itemListElement": projects.map((p, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${baseUrl}/cong-trinh/${p.slug}`,
+      "item": {
+        "@type": "CreativeWork",
+        "@subtype": "CaseStudy",
+        "@id": `${baseUrl}/cong-trinh/${p.slug}#case`,
+        "name": p.title,
+        "about": p.industry,
+        "locationCreated": p.province,
+        "description": p.problem,
+        "result": p.result,
+        "keywords": `${p.industry}, ${p.kva} kVA`,
+      }
+    }))
+  };
 }

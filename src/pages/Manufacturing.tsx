@@ -1,131 +1,250 @@
-import React from 'react';
-import { Factory, ShieldCheck, Award, CheckCircle2, Ruler, Thermometer, Zap } from 'lucide-react';
+import React from "react";
+import { Factory, ShieldCheck, Award, CheckCircle2, Ruler, Thermometer, Zap } from "lucide-react";
 import { supabase } from "@/src/lib/supabase";
 
+/* ---------------- TYPES ---------------- */
+type Step = {
+  id: number;
+  title: string;
+  description: string;
+  image_url: string;
+  sort_order: number;
+};
+
+/* ---------------- COMPONENT ---------------- */
 export function Manufacturing() {
-  const [capacity, setCapacity] = React.useState<any[]>([]);
+  const [capacity, setCapacity] = React.useState<Step[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
+  /* ---------------- FETCH DATA ---------------- */
   React.useEffect(() => {
-    const loadCapacity = async () => {
-      const { data, error } = await supabase
-        .from("manufacturing")
-        .select("*");
+    let mounted = true;
 
-      if (error) {
-        console.error("Load manufacturing error:", error);
-        setCapacity([]);
-        return;
-      }
+    const loadCapacity = async () => {
+      const { data } = await supabase
+        .from("manufacturing_capacity")
+        .select("*")
+        .order("sort_order");
+
+      if (!mounted) return;
 
       setCapacity(data ?? []);
+      setLoading(false);
     };
 
     loadCapacity();
+    return () => { mounted = false; };
   }, []);
+
+  /* ---------------- STRUCTURED DATA (SEO) ---------------- */
+  const jsonLd = {
+    "@type": "Organization",
+    name: "IPS Power",
+    url: "https://ips-power.vn",
+    description: "Nhà sản xuất máy biến áp, ổn áp và giải pháp điện công nghiệp tại Việt Nam",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Hà Nội",
+      addressCountry: "VN"
+    }
+  };
+
+  const productLd = {
+    "@type": "Product",
+    name: "Máy biến áp công nghiệp IPS Power",
+    brand: {
+      "@type": "Brand",
+      name: "IPS Power"
+    },
+    manufacturer: {
+      "@type": "Organization",
+      name: "IPS Power"
+    },
+    category: "Industrial Transformer",
+    additionalProperty: [
+      { "@type": "PropertyValue", name: "Công suất", value: "50kVA - 2500kVA" },
+      { "@type": "PropertyValue", name: "Điện áp vào", value: "220V / 380V / 22kV" },
+      { "@type": "PropertyValue", name: "Tiêu chuẩn", value: "ISO 9001:2015" }
+    ]
+  };
+
+  const howToLd = {
+    "@type": "HowTo",
+    name: "Quy trình sản xuất máy biến áp",
+    step: capacity.map(step => ({
+      "@type": "HowToStep",
+      name: step.title,
+      text: step.description
+    }))
+  };
+
+  const faqLd = {
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "IPS có test tải trước khi giao hàng không?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Tất cả máy biến áp IPS đều được test tải thực tế trước khi xuất xưởng."
+        }
+      }
+    ]
+  };
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      jsonLd,
+      productLd,
+      howToLd,
+      faqLd
+    ]
+  };
 
   return (
     <div className="pb-24 bg-white">
-      {/* Hero */}
+
+      {/* SEO STRUCTURED DATA */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData)
+        }}
+      />
+
+      {/* ================= HERO ================= */}
       <section className="bg-primary py-24 text-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter">Năng lực sản xuất & <br /><span className="text-accent">Quy trình chất lượng</span></h1>
-            <p className="text-xl text-slate-400 leading-relaxed font-medium">
-              Sở hữu hệ thống nhà xưởng hiện đại tại KCN Quang Minh, IPS làm chủ 100% quy trình sản xuất từ khâu quấn dây đến thử nghiệm xuất xưởng.
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <header className="max-w-3xl">
+            <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter">
+              Năng lực sản xuất & <span className="text-accent">Quy trình chất lượng</span>
+            </h1>
+
+            <p className="text-xl text-slate-300 leading-relaxed font-medium">
+              IPS làm chủ 100% quy trình sản xuất máy biến áp công nghiệp
+              từ quấn dây, sấy chân không đến thử nghiệm tải thực tế.
             </p>
-          </div>
+          </header>
         </div>
         <Zap className="absolute -right-20 -bottom-20 h-96 w-96 text-white/5 rotate-12" />
       </section>
 
-      {/* Factory Stats */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
+      {/* ================= FACTORY STATS ================= */}
+      <section className="max-w-7xl mx-auto px-4 -mt-12 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { label: 'Diện tích nhà xưởng', value: '5,000 m²', icon: Factory },
-            { label: 'Công suất sản xuất', value: '5,000 kVA/tháng', icon: Zap },
-            { label: 'Chứng chỉ chất lượng', value: 'ISO 9001:2015', icon: ShieldCheck },
+            { label: "Diện tích nhà xưởng", value: "5,000 m²", icon: Factory },
+            { label: "Công suất sản xuất", value: "5,000 kVA/tháng", icon: Zap },
+            { label: "Chứng chỉ chất lượng", value: "ISO 9001:2015", icon: ShieldCheck },
           ].map((stat, i) => (
-            <div key={i} className="bg-white p-10 rounded-3xl shadow-2xl border border-slate-100 flex items-center gap-8">
+            <article key={i} className="bg-white p-10 rounded-3xl shadow-2xl border border-slate-100 flex items-center gap-8">
               <div className="p-5 bg-slate-50 rounded-2xl text-accent">
                 <stat.icon className="h-10 w-10" />
               </div>
               <div>
-                <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{stat.label}</div>
-                <div className="text-3xl font-black text-slate-900 tracking-tight">{stat.value}</div>
+                <h3 className="text-[11px] text-slate-500 font-black uppercase tracking-widest mb-1">
+                  {stat.label}
+                </h3>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">
+                  {stat.value}
+                </p>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </section>
 
-      {/* Process Steps */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-        <div className="text-center mb-24">
-          <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Quy trình sản xuất khép kín</h2>
-          <p className="text-slate-500 font-medium max-w-2xl mx-auto">Mỗi sản phẩm IPS đều trải qua 7 bước kiểm soát nghiêm ngặt trước khi bàn giao cho khách hàng.</p>
-        </div>
+      {/* ================= PROCESS ================= */}
+      <section className="max-w-7xl mx-auto px-4 py-32">
+        <header className="text-center mb-24">
+          <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
+            Quy trình sản xuất máy biến áp
+          </h2>
+          <p className="text-slate-500 font-medium max-w-2xl mx-auto">
+            Mỗi thiết bị đều được kiểm tra tải thực trước khi xuất xưởng
+          </p>
+        </header>
 
+        {/* SKELETON */}
+        {loading && (
+          <div className="space-y-20 animate-pulse">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-64 bg-slate-100 rounded-3xl" />
+            ))}
+          </div>
+        )}
+
+        {/* REAL CONTENT */}
         <div className="space-y-32">
           {capacity.map((step, i) => (
-            <div key={i} className={`flex flex-col lg:flex-row gap-20 items-center ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}>
+            <article
+              key={step.id}
+              className={`flex flex-col lg:flex-row gap-20 items-center ${i % 2 ? "lg:flex-row-reverse" : ""}`}
+            >
               <div className="lg:w-1/2">
-                <div className="text-7xl font-black text-slate-100 mb-8 leading-none">0{step.sort_order}</div>
-                <h3 className="text-3xl font-black text-slate-900 mb-8 uppercase tracking-tight">{step.title}</h3>
-                <p className="text-xl text-slate-600 leading-relaxed mb-10 font-medium">{step.description}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
+                <div className="text-7xl font-black text-slate-100 mb-8 leading-none">
+                  0{step.sort_order}
+                </div>
+
+                <h3 className="text-3xl font-black text-slate-900 mb-6 uppercase">
+                  {step.title}
+                </h3>
+
+                <p className="text-xl text-slate-600 leading-relaxed mb-8 font-medium">
+                  {step.description}
+                </p>
+
+                <ul className="space-y-3 text-sm font-bold text-slate-800">
+                  <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-accent" /> Kiểm soát sai số &lt; 1%
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
-                    <CheckCircle2 className="h-5 w-5 text-accent" /> Vật liệu nhập khẩu
-                  </div>
-                </div>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-accent" /> Test tải thực tế
+                  </li>
+                </ul>
               </div>
+
               <div className="lg:w-1/2">
-                <div className="relative">
-                  <img src={step.image_url} alt={step.title} className="rounded-[3rem] shadow-2xl w-full aspect-video object-cover border-8 border-slate-50" referrerPolicy="no-referrer" />
-                  <div className="absolute -bottom-6 -right-6 bg-accent text-white p-6 rounded-2xl shadow-xl font-black text-xs uppercase tracking-widest">
-                    Step 0{step.sort_order}
-                  </div>
-                </div>
+                <img
+                  src={step.image_url}
+                  alt={`Quy trình sản xuất bước ${step.sort_order} - ${step.title}`}
+                  loading="lazy"
+                  className="rounded-[3rem] shadow-2xl w-full aspect-video object-cover border-8 border-slate-50"
+                  referrerPolicy="no-referrer"
+                />
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </section>
 
-      {/* QC Section */}
-      <section className="bg-slate-50 py-32 industrial-grid border-y border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div>
-              <h2 className="text-4xl font-black text-slate-900 mb-12 uppercase tracking-tighter">Hệ thống quản lý chất lượng (QC)</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[
-                  { icon: Ruler, title: 'Đo lường chính xác', desc: 'Sử dụng thiết bị đo chuẩn quốc tế, hiệu chuẩn định kỳ.' },
-                  { icon: Thermometer, title: 'Kiểm tra phát nhiệt', desc: 'Thử nghiệm vận hành ở tải tối đa trong 24h.' },
-                  { icon: ShieldCheck, title: 'Cách điện tuyệt đối', desc: 'Thử nghiệm phóng điện cao áp 2.5kV - 5kV.' },
-                  { icon: Award, title: 'Chứng chỉ ISO', desc: 'Quy trình đạt chuẩn ISO 9001:2015 toàn diện.' },
-                ].map((item, i) => (
-                  <div key={i} className="p-8 bg-white rounded-3xl border border-slate-200 shadow-sm hover:border-accent transition-all">
-                    <item.icon className="h-8 w-8 text-accent mb-6" />
-                    <h4 className="font-black text-slate-900 mb-3 uppercase tracking-tight">{item.title}</h4>
-                    <p className="text-sm text-slate-500 leading-relaxed font-medium">{item.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="relative">
-              <img src="https://picsum.photos/seed/qc-lab/800/600" alt="QC Laboratory" className="rounded-[3rem] shadow-2xl border-8 border-white" referrerPolicy="no-referrer" />
-              <div className="absolute -bottom-10 -right-10 bg-primary text-white p-12 rounded-[2.5rem] shadow-2xl border-4 border-white/10">
-                <div className="text-5xl font-black mb-2 text-accent">100%</div>
-                <div className="text-xs font-black uppercase tracking-widest text-slate-500">Sản phẩm được test tải</div>
-              </div>
-            </div>
+      {/* ================= QC ================= */}
+      <section className="bg-slate-50 py-32 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-4">
+          <header className="mb-16">
+            <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">
+              Kiểm soát chất lượng QC
+            </h2>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              { icon: Ruler, title: "Đo lường chính xác", desc: "Hiệu chuẩn định kỳ" },
+              { icon: Thermometer, title: "Kiểm tra phát nhiệt", desc: "Test tải 24h" },
+              { icon: ShieldCheck, title: "Thử cao áp", desc: "2.5kV - 5kV" },
+              { icon: Award, title: "ISO 9001", desc: "Quy trình chuẩn quốc tế" },
+            ].map((item, i) => (
+              <article key={i} className="p-8 bg-white rounded-3xl border border-slate-200">
+                <item.icon className="h-8 w-8 text-accent mb-6" />
+                <h3 className="font-black text-slate-900 mb-3">{item.title}</h3>
+                <p className="text-sm text-slate-500">{item.desc}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
+
     </div>
   );
 }
