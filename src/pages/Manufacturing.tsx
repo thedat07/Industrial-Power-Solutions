@@ -1,6 +1,7 @@
 import React from "react";
-import { Factory, ShieldCheck, Award, CheckCircle2, Ruler, Thermometer, Zap } from "lucide-react";
+import { Factory, ShieldCheck, Award, CheckCircle2, Ruler, Thermometer, Zap, Volume2, Activity } from "lucide-react";
 import { supabase } from "@/src/lib/supabase";
+import { BASE_URL, buildGraph, faqSchema, JsonLd, NAME_INFO, ORG_ID, pageSchema, rootSchema } from "../components/SEO";
 
 /* ---------------- TYPES ---------------- */
 type Step = {
@@ -36,107 +37,105 @@ export function Manufacturing() {
     return () => { mounted = false; };
   }, []);
 
-  /* ---------------- STRUCTURED DATA (SEO) ---------------- */
-  const jsonLd = {
-    "@type": "Organization",
-    name: "IPS Power",
-    url: "https://ips-power.vn",
-    description: "Nhà sản xuất máy biến áp, ổn áp và giải pháp điện công nghiệp tại Việt Nam",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Hà Nội",
-      addressCountry: "VN"
+
+  const url = `${BASE_URL}/san-xuat-may-bien-ap`;
+
+  /* ================= PAGE ================= */
+
+  const webpage = {
+    ...pageSchema(url, `Quy trình sản xuất máy biến áp | ${NAME_INFO}`),
+    description:
+      "Quy trình sản xuất biến áp audio: biến áp nguồn ampli, biến áp xuất âm, 70V-100V cho hệ thống truyền thanh và phòng thu.",
+    mainEntity: { "@id": `${url}#product` }
+  };
+
+  /* ================= PRODUCT ================= */
+
+  const service = {
+    "@type": "Service",
+    "@id": `${url}#service`,
+    name: `Gia công & thiết kế biến áp âm thanh theo yêu cầu`,
+    provider: { "@id": ORG_ID },
+    areaServed: "VN",
+    serviceType: "Audio transformer manufacturing",
+    description:
+      "Thiết kế và sản xuất biến áp nguồn ampli, biến áp xuất âm, biến áp 70V-100V cho hệ thống truyền thanh và studio",
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Audio Transformer Types",
+      itemListElement: [
+        { "@type": "Offer", itemOffered: { "@type": "Product", name: "Biến áp nguồn ampli" } },
+        { "@type": "Offer", itemOffered: { "@type": "Product", name: "Biến áp xuất âm" } },
+        { "@type": "Offer", itemOffered: { "@type": "Product", name: "Biến áp loa 70V-100V" } }
+      ]
     }
   };
 
-  const productLd = {
-    "@type": "Product",
-    name: "Máy biến áp công nghiệp IPS Power",
-    brand: {
-      "@type": "Brand",
-      name: "IPS Power"
-    },
-    manufacturer: {
-      "@type": "Organization",
-      name: "IPS Power"
-    },
-    category: "Industrial Transformer",
-    additionalProperty: [
-      { "@type": "PropertyValue", name: "Công suất", value: "50kVA - 2500kVA" },
-      { "@type": "PropertyValue", name: "Điện áp vào", value: "220V / 380V / 22kV" },
-      { "@type": "PropertyValue", name: "Tiêu chuẩn", value: "ISO 9001:2015" }
-    ]
-  };
+  /* ================= HOWTO ================= */
 
-  const howToLd = {
+  const howTo = {
     "@type": "HowTo",
+    "@id": `${url}#howto`,
     name: "Quy trình sản xuất máy biến áp",
+    mainEntityOfPage: { "@id": `${url}#webpage` },
     step: capacity.map(step => ({
       "@type": "HowToStep",
       name: step.title,
-      text: step.description
+      text: step.description,
+      image: step.image_url
     }))
   };
 
-  const faqLd = {
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "IPS có test tải trước khi giao hàng không?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Tất cả máy biến áp IPS đều được test tải thực tế trước khi xuất xưởng."
-        }
-      }
-    ]
-  };
+  /* ================= FAQ ================= */
+  const faq = faqSchema([
+    {
+      q: "Biến áp audio có bị ù không?",
+      a: `${NAME_INFO} đo nhiễu nền và đáp tuyến tần số trước khi xuất xưởng để đảm bảo không hum khi lắp vào ampli.`
+    },
+    {
+      q: `${NAME_INFO} có nhận thiết kế theo thông số riêng không?`,
+      a: `Chúng tôi thiết kế biến áp theo trở kháng loa, công suất ampli và dải tần yêu cầu.`
+    }
+  ], url);
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      jsonLd,
-      productLd,
-      howToLd,
-      faqLd
-    ]
-  };
+  /* ================= FINAL GRAPH ================= */
+
+  const structuredData = buildGraph(
+    ...rootSchema["@graph"],
+    webpage,
+    service,
+    howTo,
+    faq
+  );
 
   return (
     <div className="pb-24 bg-white">
-
-      {/* SEO STRUCTURED DATA */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData)
-        }}
-      />
-
+      <JsonLd data={structuredData} />
       {/* ================= HERO ================= */}
       <section className="bg-primary py-24 text-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <header className="max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter">
-              Năng lực sản xuất & <span className="text-accent">Quy trình chất lượng</span>
+              Xưởng quấn <span className="text-accent">Biến Áp Âm Ly</span> & Gia Công Theo Yêu Cầu
             </h1>
 
             <p className="text-xl text-slate-300 leading-relaxed font-medium">
-              IPS làm chủ 100% quy trình sản xuất máy biến áp công nghiệp
-              từ quấn dây, sấy chân không đến thử nghiệm tải thực tế.
+              {NAME_INFO} chuyên quấn biến áp nguồn ampli, biến áp xuất âm,
+              biến áp loa nén 70V–100V dùng cho hệ thống truyền thanh xã phường,
+              trường học, khu công nghiệp và các dự án âm thanh công cộng.
             </p>
           </header>
         </div>
         <Zap className="absolute -right-20 -bottom-20 h-96 w-96 text-white/5 rotate-12" />
       </section>
 
-      {/* ================= FACTORY STATS ================= */}
+      {/* ================= WORKSHOP STATS ================= */}
       <section className="max-w-7xl mx-auto px-4 -mt-12 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { label: "Diện tích nhà xưởng", value: "5,000 m²", icon: Factory },
-            { label: "Công suất sản xuất", value: "5,000 kVA/tháng", icon: Zap },
-            { label: "Chứng chỉ chất lượng", value: "ISO 9001:2015", icon: ShieldCheck },
+            { label: "Kinh nghiệm quấn biến áp", value: "15+ năm", icon: ShieldCheck },
+            { label: "Đơn hàng gia công mỗi tháng", value: "300+ bộ", icon: Zap },
+            { label: "Hỗ trợ thiết kế kỹ thuật", value: "Theo thông số riêng", icon: Factory },
           ].map((stat, i) => (
             <article key={i} className="bg-white p-10 rounded-3xl shadow-2xl border border-slate-100 flex items-center gap-8">
               <div className="p-5 bg-slate-50 rounded-2xl text-accent">
@@ -159,10 +158,11 @@ export function Manufacturing() {
       <section className="max-w-7xl mx-auto px-4 py-32">
         <header className="text-center mb-24">
           <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-            Quy trình sản xuất máy biến áp
+            Quy trình sản xuất biến áp âm thanh & truyền thanh
           </h2>
           <p className="text-slate-500 font-medium max-w-2xl mx-auto">
-            Mỗi thiết bị đều được kiểm tra tải thực trước khi xuất xưởng
+            Mỗi biến áp loa 70V–100V và biến áp xuất âm đều được đo đáp tuyến tần số,
+            kiểm tra méo tín hiệu và thử tải thực với ampli trước khi bàn giao.
           </p>
         </header>
 
@@ -197,10 +197,10 @@ export function Manufacturing() {
 
                 <ul className="space-y-3 text-sm font-bold text-slate-800">
                   <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-accent" /> Kiểm soát sai số &lt; 1%
+                    <CheckCircle2 className="h-5 w-5 text-accent" /> Đo đáp tuyến tần số 50Hz – 18kHz
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-accent" /> Test tải thực tế
+                    <CheckCircle2 className="h-5 w-5 text-accent" /> Thử tải loa 4Ω / 8Ω / 100V line
                   </li>
                 </ul>
               </div>
@@ -208,7 +208,7 @@ export function Manufacturing() {
               <div className="lg:w-1/2">
                 <img
                   src={step.image_url}
-                  alt={`Quy trình sản xuất bước ${step.sort_order} - ${step.title}`}
+                  alt={`${step.title} biến áp âm thanh 70V 100V tại xưởng`}
                   loading="lazy"
                   className="rounded-[3rem] shadow-2xl w-full aspect-video object-cover border-8 border-slate-50"
                   referrerPolicy="no-referrer"
@@ -224,16 +224,32 @@ export function Manufacturing() {
         <div className="max-w-7xl mx-auto px-4">
           <header className="mb-16">
             <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">
-              Kiểm soát chất lượng QC
+              Kiểm tra điện & âm thanh trước xuất xưởng
             </h2>
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[
-              { icon: Ruler, title: "Đo lường chính xác", desc: "Hiệu chuẩn định kỳ" },
-              { icon: Thermometer, title: "Kiểm tra phát nhiệt", desc: "Test tải 24h" },
-              { icon: ShieldCheck, title: "Thử cao áp", desc: "2.5kV - 5kV" },
-              { icon: Award, title: "ISO 9001", desc: "Quy trình chuẩn quốc tế" },
+              {
+                icon: Activity,
+                title: "Đo đáp tuyến tần số",
+                desc: "20Hz – 20kHz, kiểm tra suy hao bass & treble"
+              },
+              {
+                icon: Volume2,
+                title: "Kiểm tra nhiễu & ù nền",
+                desc: "Đảm bảo không hum khi lắp vào ampli"
+              },
+              {
+                icon: Thermometer,
+                title: "Test tải liên tục",
+                desc: "Hoạt động 24h ở công suất danh định"
+              },
+              {
+                icon: ShieldCheck,
+                title: "Thử cách điện cao áp",
+                desc: "2.5kV – 5kV giữa các lớp cuộn"
+              }
             ].map((item, i) => (
               <article key={i} className="p-8 bg-white rounded-3xl border border-slate-200">
                 <item.icon className="h-8 w-8 text-accent mb-6" />

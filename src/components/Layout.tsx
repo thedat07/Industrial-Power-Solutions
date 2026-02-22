@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Zap, Phone, Mail, FileText, BookOpen, Briefcase, Settings, Factory } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
+import { ADDRESS, EMAIL, NAME_FIST_INFO, NAME_INFO, NAME_LAST_INFO, TELEPHONE_TEXT } from './SEO';
 
 const navItems = [
   { name: 'Giới thiệu', path: '/gioi-thieu', icon: Factory },
@@ -9,7 +10,6 @@ const navItems = [
   { name: 'Năng lực', path: '/nang-luc', icon: Factory },
   { name: 'Công trình', path: '/cong-trinh', icon: Briefcase },
   { name: 'Ứng dụng', path: '/ung-dung', icon: Zap },
-  { name: 'Tài liệu', path: '/tai-lieu', icon: FileText },
   { name: 'Kỹ thuật', path: '/kien-thuc', icon: BookOpen },
 ];
 
@@ -25,7 +25,7 @@ export function Navbar() {
             <Link to="/" className="flex items-center gap-2">
               <Zap className="h-8 w-8 text-accent fill-accent" />
               <span className="font-black text-xl tracking-tighter text-slate-900 hidden sm:block uppercase">
-                IPS <span className="text-accent">Industrial</span>
+                {NAME_FIST_INFO} <span className="text-accent">{NAME_LAST_INFO}</span>
               </span>
             </Link>
           </div>
@@ -107,10 +107,10 @@ export function Footer() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-8">
               <Zap className="h-8 w-8 text-accent fill-accent" />
-              <span className="font-black text-2xl text-white uppercase tracking-tighter">IPS <span className="text-accent">Industrial</span></span>
+              <span className="font-black text-2xl text-white uppercase tracking-tighter">{NAME_FIST_INFO} <span className="text-accent">{NAME_LAST_INFO}</span></span>
             </div>
             <p className="text-sm text-slate-400 max-w-md leading-relaxed font-medium">
-              Nhà sản xuất thiết bị điện công nghiệp hàng đầu Việt Nam. Chuyên sâu giải pháp ổn định điện áp và biến áp hạ thế cho các dây chuyền sản xuất tự động hóa.
+              Nhà sản xuất biến áp amply và biến áp audio tại Việt Nam. Chuyên biến áp xuất âm (output transformer), biến áp nguồn cho ampli đèn, Hi-Fi và thiết bị âm thanh cao cấp. Thiết kế theo yêu cầu, OEM, tối ưu chất lượng âm thanh và độ ổn định điện áp.
             </p>
           </div>
           <div>
@@ -118,23 +118,23 @@ export function Footer() {
             <ul className="space-y-4 text-sm font-medium">
               <li className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-accent" />
-                0900-123-456
+                {TELEPHONE_TEXT}
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-accent" />
-                baogia@ips-power.vn
+                {EMAIL}
               </li>
             </ul>
           </div>
           <div>
             <h3 className="text-white font-black uppercase tracking-widest text-xs mb-8">Nhà máy sản xuất</h3>
             <p className="text-sm text-slate-400 leading-relaxed font-medium">
-              Lô CN-08, Khu Công Nghiệp Quang Minh, Mê Linh, Hà Nội, Việt Nam.
+              {ADDRESS}
             </p>
           </div>
         </div>
         <div className="mt-24 pt-8 border-t border-white/5 text-center text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-          © {new Date().getFullYear()} IPS INDUSTRIAL POWER SOLUTIONS. ALL RIGHTS RESERVED.
+          © {new Date().getFullYear()} {NAME_INFO}. ALL RIGHTS RESERVED.
         </div>
       </div>
     </footer>

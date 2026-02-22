@@ -1,10 +1,11 @@
 import React from 'react';
 import { ShieldCheck, Target, Users, CheckCircle2, Zap, MapPin, Phone, Mail } from 'lucide-react';
+import { ADDRESS, EMAIL, JsonLd, rootSchema, TELEPHONE, TELEPHONE_TEXT } from '../components/SEO';
 
 export function AboutUs() {
   return (
     <div className="bg-white min-h-screen pb-24">
-      {/* Hero */}
+      <JsonLd data={rootSchema} />
       <section
         className="bg-primary py-32 text-white relative overflow-hidden"
         aria-labelledby="gioi-thieu-cong-ty-dien-cong-nghiep"
@@ -96,7 +97,7 @@ export function AboutUs() {
           {/* IMAGE */}
           <div className="relative">
             <img
-              src="https://picsum.photos/seed/factory-history/800/1000"
+              src="https://rbyjreoslnnhqcuyoptq.supabase.co/storage/v1/object/sign/image/BienAp_1.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85YjZkYTZiMi1mYjE1LTRlYWItYTZlNS0zYTUyZTc2ZmM5NGYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZS9CaWVuQXBfMS5qcGciLCJpYXQiOjE3NzE3NTY0MjAsImV4cCI6MTgwMzI5MjQyMH0.1Xuy0aU2pECZjrNfyj57lGSsDgWo4XU7MvviqdhAkkg"
               alt="Khu vực lắp ráp và kiểm tra thiết bị điện công nghiệp"
               className="rounded-[3rem] shadow-2xl border-8 border-slate-50"
               referrerPolicy="no-referrer"
@@ -193,7 +194,6 @@ export function AboutUs() {
           </header>
 
           <ul className="grid grid-cols-2 md:grid-cols-4 gap-12">
-
             {[
               {
                 name: "ISO 9001:2015",
@@ -241,31 +241,6 @@ export function AboutUs() {
         id="lien-he"
       >
         <div className="bg-primary rounded-[3rem] p-12 md:p-20 text-white relative overflow-hidden shadow-2xl">
-
-          {/* SEO STRUCTURED DATA */}
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "LocalBusiness",
-                name: "IPS Power",
-                image: "https://ips-power.vn/logo.png",
-                address: {
-                  "@type": "PostalAddress",
-                  streetAddress: "KCN Quang Minh",
-                  addressLocality: "Mê Linh",
-                  addressRegion: "Hà Nội",
-                  addressCountry: "VN"
-                },
-                telephone: "+84900123456",
-                email: "baogia@ips-power.vn",
-                areaServed: "Miền Bắc Việt Nam",
-                serviceType: "Máy biến áp, ổn áp 3 pha công nghiệp"
-              })
-            }}
-          />
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">
 
             {/* CONTACT DETAILS */}
@@ -286,7 +261,7 @@ export function AboutUs() {
                       Nhà máy sản xuất
                     </div>
                     <p className="text-lg font-bold">
-                      KCN Quang Minh, Mê Linh, Hà Nội
+                     {ADDRESS}
                     </p>
                   </div>
                 </div>
@@ -300,8 +275,11 @@ export function AboutUs() {
                     <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">
                       Hotline kỹ thuật
                     </div>
-                    <a href="tel:0900123456" className="text-lg font-bold hover:underline">
-                      0900 123 456
+                    <a
+                      href={`tel:${TELEPHONE}`}
+                      className="text-lg font-bold hover:underline"
+                    >
+                      {TELEPHONE_TEXT}
                     </a>
                   </div>
                 </div>
@@ -315,9 +293,15 @@ export function AboutUs() {
                     <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">
                       Email báo giá
                     </div>
-                    <a href="mailto:baogia@ips-power.vn" className="text-lg font-bold hover:underline">
-                      baogia@ips-power.vn
-                    </a>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(EMAIL);
+                        alert("Đã copy email!");
+                      }}
+                      className="text-lg font-bold hover:underline"
+                    >
+                      {EMAIL}
+                    </button>
                   </div>
                 </div>
 

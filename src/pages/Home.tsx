@@ -3,26 +3,10 @@ import { supabase } from "@/src/lib/supabase";
 import { Link } from 'react-router-dom';
 import { Zap, Factory, ArrowRight, AlertTriangle, CheckCircle2, Activity, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
+import { BASE_URL, buildGraph, JsonLd, pageSchema, NAME_INFO } from '../components/SEO';
 
 export function Home() {
   const [articles, setArticles] = React.useState<any[]>([]);
-
-  const webPageLd = {
-    "@type": "WebPage",
-    name: "Chẩn đoán điện nhà xưởng | IPS Power",
-    url: "https://yourdomain.com",
-    description:
-      "Phân tích sụt áp, quá tải nguồn, motor nóng, lỗi biến tần và PLC reset trong nhà xưởng công nghiệp.",
-    inLanguage: "vi"
-  };
-
-  const organizationLd = {
-    "@type": "Organization",
-    name: "IPS Power",
-    url: "https://yourdomain.com",
-    logo: "https://yourdomain.com/logo.png",
-    sameAs: []
-  };
 
   React.useEffect(() => {
     const loadArticles = async () => {
@@ -44,46 +28,56 @@ export function Home() {
   }, []);
 
   const symptoms: { title: string; slug: SymptomSlug }[] = [
-    { title: "Máy chạy yếu khi ở cuối xưởng", slug: "may-chay-yeu-khi-o-cuoi-xuong" },
-    { title: "Motor nóng nhanh dù không quá tải", slug: "motor-nong-nhanh-du-khong-qua-tai" },
-    { title: "Máy CNC hoặc biến tần báo lỗi điện áp", slug: "may-cnc-hoac-bien-tan-bao-loi-dien-ap" },
-    { title: "Nhảy aptomat khi khởi động máy lớn", slug: "nhay-aptomat-khi-khoi-dong-may-lon" },
-    { title: "Bật máy hàn thì đèn nhấp nháy, PLC reset", slug: "bat-may-han-thi-den-nhap-nhay-plc-reset" },
-    { title: "Điện áp lúc cao lúc thấp theo giờ", slug: "dien-ap-luc-cao-luc-thap-theo-gio" },
-    { title: "Không rõ nhưng máy hoạt động không ổn định", slug: "khong-ro-nhung-may-hoat-dong-khong-on-dinh" }
+    { title: "Loa phường bị rè và méo tiếng", slug: "loa-phuong-bi-re" },
+    { title: "Loa phát rất nhỏ dù mở hết âm lượng", slug: "loa-nghe-nho" },
+    { title: "Loa lúc kêu lúc không", slug: "loa-luc-co-luc-khong" },
+    { title: "Amply nóng nhanh khi phát thông báo", slug: "amply-nong" },
+    { title: "Hệ thống bị ù nền 50Hz", slug: "phat-xa-bi-u" },
+    { title: "Kéo dây xa thì mất tiếng", slug: "day-dai-mat-tieng" },
+    { title: "Hay cháy loa khi mở to", slug: "chay-loa" },
+    { title: "Một số cột loa không phát", slug: "mot-so-cot-khong-keu" },
+    { title: "Âm thanh bị vang và đục", slug: "mo-am-thanh-bi-vang" }
   ];
 
   type SymptomSlug =
-    | "may-chay-yeu-khi-o-cuoi-xuong"
-    | "motor-nong-nhanh-du-khong-qua-tai"
-    | "may-cnc-hoac-bien-tan-bao-loi-dien-ap"
-    | "nhay-aptomat-khi-khoi-dong-may-lon"
-    | "bat-may-han-thi-den-nhap-nhay-plc-reset"
-    | "dien-ap-luc-cao-luc-thap-theo-gio"
-    | "khong-ro-nhung-may-hoat-dong-khong-on-dinh";
+    | "loa-phuong-bi-re"
+    | "loa-nghe-nho"
+    | "loa-luc-co-luc-khong"
+    | "amply-nong"
+    | "phat-xa-bi-u"
+    | "day-dai-mat-tieng"
+    | "chay-loa"
+    | "mot-so-cot-khong-keu"
+    | "mo-am-thanh-bi-vang";
 
   function getPreviewExplanation(slug: SymptomSlug): string {
     const map: Record<SymptomSlug, string> = {
-      "may-chay-yeu-khi-o-cuoi-xuong":
-        "Thường do sụt áp trên đường dây dài hoặc tiết diện dây không đủ khi tải tăng.",
+      "loa-phuong-bi-re":
+        "Thường do biến áp xuất âm không phù hợp hoặc tổng công suất loa vượt thiết kế.",
 
-      "motor-nong-nhanh-du-khong-qua-tai":
-        "Điện áp thấp làm dòng tăng để bù moment khiến motor quá nhiệt.",
+      "loa-nghe-nho":
+        "Sai điện áp 70V/100V line hoặc sụt áp do đường dây dài.",
 
-      "may-cnc-hoac-bien-tan-bao-loi-dien-ap":
-        "Biến tần rất nhạy với undervoltage khi spindle tăng tốc.",
+      "loa-luc-co-luc-khong":
+        "Tiếp xúc dây kém hoặc biến áp phân vùng quá nhiệt.",
 
-      "nhay-aptomat-khi-khoi-dong-may-lon":
-        "Dòng khởi động có thể gấp 5–7 lần dòng định mức gây quá dòng tức thời.",
+      "amply-nong":
+        "Tải loa thấp hơn thiết kế khiến amply hoạt động quá dòng.",
 
-      "bat-may-han-thi-den-nhap-nhay-plc-reset":
-        "Máy hàn tạo tải xung làm sụt áp tức thời toàn hệ thống.",
+      "phat-xa-bi-u":
+        "Nhiễu nguồn điện hoặc loop mass trong hệ thống truyền thanh.",
 
-      "dien-ap-luc-cao-luc-thap-theo-gio":
-        "Phụ thuộc tải khu vực hoặc giờ cao điểm điện lưới.",
+      "day-dai-mat-tieng":
+        "Sụt áp đường truyền – cần tăng điện áp line hoặc đổi biến áp phù hợp.",
 
-      "khong-ro-nhung-may-hoat-dong-khong-on-dinh":
-        "Thường do tổng hợp nhiều yếu tố: sụt áp, nhiễu nguồn hoặc lệch pha."
+      "chay-loa":
+        "Chọn sai nấc công suất loa hoặc biến áp quá lớn.",
+
+      "mot-so-cot-khong-keu":
+        "Đứt nhánh phân vùng hoặc đấu sai cực tính.",
+
+      "mo-am-thanh-bi-vang":
+        "Sai dải tần biến áp hoặc loa nén không phù hợp khoảng cách."
     };
 
     return map[slug];
@@ -91,61 +85,69 @@ export function Home() {
 
   const solutions = [
     {
-      slug: "on-ap-cho-may-cnc",
-      title: "Ổn áp cho máy CNC bị lỗi điện áp",
-      desc: "Khắc phục undervoltage, alarm drive và reset controller do điện áp sụt khi máy tăng tốc",
-      keywords: ["máy cnc lỗi điện áp", "undervoltage cnc", "driver cnc reset"],
-      icon: Settings
-    },
-    {
-      slug: "sut-ap-cuoi-xuong",
-      title: "Xử lý sụt áp cuối đường dây nhà xưởng",
-      desc: "Tăng điện áp tại vị trí máy xa nguồn, tránh motor yếu và khởi động không nổi",
-      keywords: ["sụt áp cuối xưởng", "điện yếu cuối đường dây", "motor chạy yếu"],
+      slug: "tinh-cong-suat-loa",
+      title: "Tính công suất hệ thống loa truyền thanh",
+      desc: "Xác định tổng tải loa và chọn biến áp phù hợp tránh rè và cháy loa",
+      keywords: ["tính công suất loa phường", "bao nhiêu loa dùng được", "chọn biến áp amply"],
       icon: Activity
     },
     {
-      slug: "tach-nguon-may-cong-suat-lon",
-      title: "Tách nguồn cho máy công suất lớn",
-      desc: "Giảm nhảy aptomat và nhiễu điện khi máy hàn, máy ép hoặc máy nén khí khởi động",
-      keywords: ["nhảy aptomat khi khởi động", "máy hàn làm sập điện", "inrush current"],
+      slug: "thiet-ke-duong-day",
+      title: "Thiết kế đường dây 70V/100V line",
+      desc: "Giảm sụt áp khi kéo dây xa nhiều cột loa",
+      keywords: ["dây loa phường dài", "100v line bị nhỏ", "loa xa không kêu"],
       icon: Zap
     },
     {
-      slug: "bien-ap-cho-may-nhap-khau",
-      title: "Biến áp cho máy nhập khẩu 200V/380V/440V",
-      desc: "Cấp đúng điện áp cho thiết bị Nhật, Hàn, Châu Âu tránh quá nhiệt và hỏng driver",
-      keywords: ["biến áp máy nhật", "máy 200v dùng điện 3 pha", "chọn biến áp công nghiệp"],
+      slug: "bien-ap-cho-amply",
+      title: "Quấn biến áp cho amply truyền thanh",
+      desc: "Phù hợp công suất và điện áp hệ thống loa ngoài trời",
+      keywords: ["quấn biến áp amply", "biến áp loa phường", "output transformer pa"],
+      icon: Settings
+    },
+    {
+      slug: "bien-ap-doi-nguon",
+      title: "Biến áp đổi nguồn 110V/220V/380V",
+      desc: "Dùng cho thiết bị nhập khẩu trong hệ thống truyền thanh",
+      keywords: ["biến áp đổi nguồn", "đổi điện 220 sang 110", "nguồn amply nhập khẩu"],
       icon: Factory
     }
   ];
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      webPageLd,
-      organizationLd
-    ]
+  const url = `${BASE_URL}/chan-doan-dien-nha-xuong`;
+
+  /* ================= PAGE ================= */
+
+  const pageNode = pageSchema(
+    url,
+    "Chẩn đoán điện nhà xưởng | " + { NAME_INFO }
+  );
+
+  const enhancedPageNode = {
+    ...pageNode,
+    "description":
+      "Phân tích sụt áp, quá tải nguồn, motor nóng, lỗi biến tần và PLC reset trong nhà xưởng công nghiệp."
   };
+
+  /* ================= FINAL GRAPH ================= */
+
+  const structuredData = buildGraph(
+    enhancedPageNode
+  );
 
   return (
     <div className="space-y-0 pb-0 bg-white">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData)
-        }}
-      />
+      <JsonLd data={structuredData} />
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[800px] flex items-center bg-slate-950 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://picsum.photos/seed/factory-technical/1920/1080"
+            src="https://rbyjreoslnnhqcuyoptq.supabase.co/storage/v1/object/sign/image/BienApXuyen_2.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85YjZkYTZiMi1mYjE1LTRlYWItYTZlNS0zYTUyZTc2ZmM5NGYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZS9CaWVuQXBYdXllbl8yLmpwZyIsImlhdCI6MTc3MTc1NTI1OSwiZXhwIjoxODAzMjkxMjU5fQ.Qs4t7ALYvMvzASmQMGc4fvlX261FPgQv2mCVBhmou2Q"
             alt="Hệ thống điện nhà xưởng công nghiệp"
             className="w-full h-full object-cover opacity-30 grayscale"
             referrerPolicy="no-referrer"
           />
-        
+
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20">
@@ -158,27 +160,27 @@ export function Home() {
 
               {/* TAG */}
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/20 border border-accent/30 rounded-lg text-accent text-[10px] font-black uppercase tracking-[0.2em] mb-8">
-                <AlertTriangle className="h-3 w-3" /> Phân tích sự cố điện nhà xưởng
+                <AlertTriangle className="h-3 w-3" /> Biến áp amply truyền thanh
               </div>
 
               {/* H1 - SEO INTENT */}
               <h1 className="text-4xl md:text-7xl font-black text-white leading-[1.1] mb-8 uppercase tracking-tighter">
-                Chẩn đoán điện nhà xưởng
+                Sản xuất biến áp loa phường
                 <span className="text-accent block">
-                  Sụt áp • Lệch pha • Quá tải nguồn
+                  70V • 100V Line • Phân vùng loa
                 </span>
               </h1>
 
               {/* TECHNICAL DESCRIPTION - cực quan trọng cho SEO */}
               <p className="text-lg md:text-xl text-white font-bold mb-4 leading-tight max-w-3xl">
-                Xác định nguyên nhân các lỗi: motor nóng, máy CNC báo undervoltage,
-                nhảy aptomat khi khởi động, điện cuối xưởng yếu hoặc PLC reset.
+                Quấn biến áp amply cho hệ thống truyền thanh xã, thôn, trường học và khu dân cư.
+                Đảm bảo đủ công suất, không méo tiếng và hoạt động ổn định ngoài trời 24/7.
               </p>
 
               {/* EXPLANATION - AI & GOOGLE */}
               <p className="text-lg text-slate-400 mb-12 leading-relaxed max-w-2xl font-medium">
-                Phân tích dựa trên công suất tải, chiều dài dây và điện áp thực tế.
-                Phần lớn sự cố không phải do máy hỏng mà do sụt áp hoặc nguồn không đủ khi tải tăng.
+                Thiết kế theo tổng công suất loa, chiều dài dây và điện áp đường truyền 70V/100V.
+                Hạn chế sụt áp, rè nhiễu và cháy loa khi phát thông báo liên tục.
               </p>
 
               {/* CTA */}
@@ -188,10 +190,10 @@ export function Home() {
                     to="/gui-thong-so"
                     className="inline-flex px-10 py-6 bg-accent text-white rounded-xl font-black text-xl hover:brightness-110 transition-all shadow-2xl shadow-orange-900/40 uppercase tracking-tight"
                   >
-                    Gửi thông số để kiểm tra
+                    Gửi cấu hình hệ thống loa
                   </Link>
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center sm:text-left">
-                    Không cần mua — chỉ xác định nguyên nhân trước
+                    Tính công suất & số lượng biến áp miễn phí
                   </p>
                 </div>
 
@@ -199,9 +201,17 @@ export function Home() {
                   to="/kien-thuc"
                   className="px-10 py-6 bg-white/5 backdrop-blur-md text-white border border-white/20 rounded-xl font-black text-xl hover:bg-white/10 transition-all uppercase tracking-tight"
                 >
-                  Xem lỗi thường gặp
+                  Hướng dẫn lắp đặt loa phường
                 </Link>
               </div>
+
+              <section className="py-10 border-y border-white/10 bg-white/[0.02]">
+                <div className="max-w-6xl mx-auto px-6 text-center">
+                  <p className="text-sm md:text-base font-semibold text-slate-300 tracking-wide">
+                    Phục vụ các hệ thống truyền thanh cơ sở – chương trình nông thôn mới – trường học – khu dân cư
+                  </p>
+                </div>
+              </section>
 
             </motion.div>
           </div>
@@ -215,11 +225,11 @@ export function Home() {
           {/* TITLE */}
           <div className="text-center mb-20">
             <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-              Chẩn đoán sự cố điện theo hiện tượng
+              Vì sao loa phường bị rè, nhỏ hoặc chập chờn?
             </h2>
             <p className="text-slate-500 font-medium max-w-3xl mx-auto text-lg">
-              Mỗi dấu hiệu vận hành tương ứng với một vấn đề điện cụ thể như sụt áp,
-              quá dòng khởi động hoặc mất cân bằng pha.
+              Phân tích theo công suất loa, chiều dài dây và điện áp đường truyền 70V/100V
+              để xác định đúng nguyên nhân trước khi thay biến áp hoặc amply.
             </p>
           </div>
 
@@ -259,14 +269,15 @@ export function Home() {
           </div>
 
           {/* TECHNICAL NOTE */}
+          {/* TECHNICAL NOTE */}
           <div className="mt-20 max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-10 shadow-sm">
             <h3 className="font-black text-slate-900 mb-4 uppercase text-sm tracking-widest">
-              Nguyên lý chung
+              Nguyên lý hệ thống loa truyền thanh
             </h3>
             <p className="text-slate-700 leading-relaxed">
-              Hầu hết sự cố điện nhà xưởng không xuất phát từ hỏng thiết bị mà do điện áp giảm khi tải tăng.
-              Moment động cơ tỉ lệ với bình phương điện áp, vì vậy chỉ cần sụt 10% điện áp
-              motor có thể mất gần 20% lực kéo dẫn đến nóng và dừng máy.
+              Hầu hết lỗi loa phường không phải do hỏng loa mà do chọn sai biến áp hoặc điện áp đường truyền.
+              Hệ thống 70V/100V line cần ghép đúng tổng công suất loa và trở kháng tải.
+              Nếu tải quá thấp amply sẽ nóng và méo tiếng, nếu tải quá cao âm thanh sẽ nhỏ và mất tiếng khi kéo dây xa.
             </p>
           </div>
 
@@ -274,27 +285,27 @@ export function Home() {
       </section>
 
       {/* 3. TRUST SECTION */}
-      <section className="py-32 bg-white" aria-labelledby="ly-do-khong-mua-ngay">
+      <section className="py-32 bg-white" aria-labelledby="vi-sao-khong-thay-loa-ngay">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
             {/* IMAGE */}
             <figure className="relative">
               <img
-                src="https://picsum.photos/seed/engineer-check/800/1000"
-                alt="Kỹ sư đo điện áp và kiểm tra nguồn điện tại nhà xưởng công nghiệp"
+                src="https://rbyjreoslnnhqcuyoptq.supabase.co/storage/v1/object/sign/image/BienAp_1.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85YjZkYTZiMi1mYjE1LTRlYWItYTZlNS0zYTUyZTc2ZmM5NGYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZS9CaWVuQXBfMS5qcGciLCJpYXQiOjE3NzE3NTYxNDcsImV4cCI6MTgwMzI5MjE0N30.suywRaY5NQEg97aOuw9iZ4nUTV-jsLnTFkk4FA8nJCc"
+                alt="Kỹ thuật viên kiểm tra hệ thống loa truyền thanh và biến áp amply"
                 className="rounded-[3rem] shadow-2xl border-8 border-slate-50"
                 loading="lazy"
               />
 
               <figcaption className="sr-only">
-                Kiểm tra điện áp trước khi quyết định lắp ổn áp hoặc máy biến áp
+                Kiểm tra công suất loa và điện áp 100V line trước khi thay biến áp
               </figcaption>
 
               <div className="absolute -bottom-10 -right-10 bg-primary text-white p-12 rounded-[2.5rem] shadow-2xl border-4 border-white/10">
                 <strong className="block text-5xl font-black mb-2 text-accent">70%</strong>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  lỗi điện lặp lại do xác định sai nguyên nhân
+                  hệ thống lỗi do chọn sai biến áp
                 </span>
               </div>
             </figure>
@@ -302,53 +313,62 @@ export function Home() {
             {/* CONTENT */}
             <article className="space-y-10">
               <header>
-                <h2 id="ly-do-khong-mua-ngay" className="text-4xl font-black text-slate-900 uppercase tracking-tighter">
-                  Vì sao không nên mua ổn áp hoặc biến áp ngay?
+                <h2 id="vi-sao-khong-thay-loa-ngay" className="text-4xl font-black text-slate-900 uppercase tracking-tighter">
+                  Vì sao không nên thay loa hoặc amply ngay?
                 </h2>
               </header>
 
               <div className="space-y-6 text-lg text-slate-600 font-medium leading-relaxed">
                 <p>
-                  Khoảng <strong>70% nhà xưởng thay ổn áp hoặc máy biến áp nhưng lỗi vẫn lặp lại</strong>.
-                  Nguyên nhân thực tế thường là <strong>sụt áp đường dây</strong>,
-                  <strong>cấp nguồn sai vị trí</strong> hoặc <strong>dòng khởi động motor quá lớn</strong>.
+                  Khoảng <strong>70% hệ thống loa phường bị rè hoặc nhỏ không phải do hỏng loa</strong>.
+                  Nguyên nhân thường là <strong>chọn sai biến áp</strong>,
+                  <strong> tổng công suất loa vượt thiết kế</strong> hoặc
+                  <strong>sụt áp trên đường dây 100V line</strong>.
                 </p>
 
                 <section className="p-8 bg-slate-50 rounded-3xl border-2 border-slate-100">
                   <h3 className="font-black text-slate-900 uppercase text-xs tracking-widest mb-4">
-                    Hậu quả khi xác định sai nguyên nhân điện yếu
+                    Hậu quả khi xác định sai nguyên nhân
                   </h3>
 
                   <ul className="space-y-3 list-disc pl-5 marker:text-red-600">
                     <li className="text-red-600 font-bold">
-                      Motor tiếp tục bị nóng và giảm tuổi thọ
+                      Amply nóng và giảm tuổi thọ
                     </li>
                     <li className="text-red-600 font-bold">
-                      Biến tần tiếp tục báo lỗi điện áp
+                      Loa tiếp tục rè hoặc cháy khi mở to
                     </li>
                     <li className="text-red-600 font-bold">
-                      Hao điện năng nhưng không cải thiện sản xuất
+                      Tốn chi phí thay thiết bị nhưng lỗi vẫn lặp lại
                     </li>
                   </ul>
                 </section>
 
                 <p className="font-bold text-slate-900">
-                  Vì vậy cần <strong>đo kiểm thông số vận hành trước</strong> rồi mới quyết định lắp thiết bị điện phù hợp.
+                  Cần tính tổng công suất loa, chiều dài dây và điện áp đường truyền trước khi quyết định quấn hoặc thay biến áp.
                 </p>
               </div>
 
-              <aside className="grid grid-cols-1 sm:grid-cols-2 gap-6" aria-label="Cam kết tư vấn">
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-3 font-black text-xs uppercase tracking-tight">
-                    Không bán thiết bị khi chưa rõ nguyên nhân
-                  </li>
-                  <li className="flex items-center gap-3 font-black text-xs uppercase tracking-tight">
-                    Ưu tiên giải pháp tiết kiệm chi phí trước
-                  </li>
-                  <li className="flex items-center gap-3 font-black text-xs uppercase tracking-tight">
-                    Có thể chỉ cần thay đổi cách cấp nguồn
-                  </li>
-                </ul>
+              <aside className="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Cam kết tư vấn">
+
+                <div className="flex gap-3 p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <p className="text-xs font-bold uppercase leading-tight">
+                    Không quấn biến áp khi chưa rõ cấu hình hệ thống
+                  </p>
+                </div>
+
+                <div className="flex gap-3 p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <p className="text-xs font-bold uppercase leading-tight">
+                    Ưu tiên tối ưu lại đấu nối trước khi thay thiết bị
+                  </p>
+                </div>
+
+                <div className="flex gap-3 p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <p className="text-xs font-bold uppercase leading-tight">
+                    Tư vấn miễn phí cho hệ thống truyền thanh xã, thôn
+                  </p>
+                </div>
+
               </aside>
 
             </article>
@@ -357,34 +377,35 @@ export function Home() {
       </section>
 
       {/* 4. KNOWLEDGE SECTION */}
-      <section className="py-32 bg-slate-950 text-white" aria-labelledby="kien-thuc-dien-nha-xuong">
+      <section className="py-32 bg-slate-950 text-white" aria-labelledby="kien-thuc-loa-phuong">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* HEADER */}
           <header className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div>
-              <h2 id="kien-thuc-dien-nha-xuong" className="text-4xl font-black mb-6 uppercase tracking-tighter">
-                Các vấn đề điện nhà xưởng thường gặp
+              <h2 id="kien-thuc-loa-phuong" className="text-4xl font-black mb-6 uppercase tracking-tighter">
+                Các lỗi hệ thống loa truyền thanh thường gặp
               </h2>
 
               <p className="text-slate-400 font-medium text-lg max-w-2xl">
-                Tổng hợp kinh nghiệm xử lý <strong>sụt áp</strong>, <strong>mất cân bằng pha</strong>,
-                <strong>motor quá nhiệt</strong> và <strong>lỗi biến tần</strong> từ các hệ thống công nghiệp thực tế.
+                Tổng hợp kinh nghiệm xử lý <strong>loa bị rè</strong>, <strong>âm thanh nhỏ</strong>,
+                <strong>ù nền 50Hz</strong> và <strong>sụt áp đường dây 100V line</strong>
+                trong hệ thống loa phường, trường học và khu dân cư.
               </p>
             </div>
 
-            <nav aria-label="Thư viện kiến thức điện công nghiệp">
+            <nav aria-label="Thư viện kiến thức hệ thống truyền thanh">
               <Link
                 to="/kien-thuc"
                 className="inline-flex items-center gap-3 text-accent font-black uppercase text-xs tracking-widest hover:gap-5 transition-all"
               >
-                Xem toàn bộ tài liệu kỹ thuật <ArrowRight className="h-4 w-4" />
+                Xem toàn bộ hướng dẫn <ArrowRight className="h-4 w-4" />
               </Link>
             </nav>
           </header>
 
           {/* ARTICLES */}
-          <section aria-label="Danh sách bài viết kỹ thuật điện công nghiệp">
+          <section aria-label="Danh sách bài viết hệ thống loa truyền thanh">
             <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
               {articles.map((art, i) => (
@@ -408,7 +429,7 @@ export function Home() {
                         to={`/kien-thuc/${art.slug}`}
                         className="flex items-center gap-2 text-white/50 font-black text-[10px] uppercase tracking-widest"
                       >
-                        Đọc hướng dẫn chi tiết <ArrowRight className="h-3 w-3" />
+                        Xem cách xử lý <ArrowRight className="h-3 w-3" />
                       </Link>
                     </footer>
 
@@ -423,24 +444,26 @@ export function Home() {
       </section>
 
       {/* 5. SOLUTIONS SECTION */}
-      <section className="py-32 bg-white" aria-labelledby="giai-phap-dien-nha-xuong">
+      {/* 5. SOLUTIONS SECTION */}
+      <section className="py-32 bg-white" aria-labelledby="giai-phap-he-thong-loa">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* HEADER */}
           <header className="text-center mb-20">
-            <h2 id="giai-phap-dien-nha-xuong" className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-              Các hướng xử lý sự cố điện nhà xưởng
+            <h2 id="giai-phap-he-thong-loa" className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
+              Các hướng xử lý hệ thống loa truyền thanh
             </h2>
 
             <p className="text-slate-600 font-medium max-w-3xl mx-auto text-lg leading-relaxed">
-              Tùy theo nguyên nhân <strong>sụt áp</strong>, <strong>quá dòng khởi động</strong>,
-              <strong>mất cân bằng pha</strong> hoặc <strong>nguồn cấp không đủ công suất</strong>,
-              giải pháp có thể là thay đổi cấp nguồn, ổn áp, biến áp riêng hoặc tách tải — không phải lúc nào cũng cần thay thiết bị.
+              Tùy theo nguyên nhân <strong>loa bị rè</strong>, <strong>âm thanh nhỏ</strong>,
+              <strong>ù nền</strong> hoặc <strong>mất tiếng khi kéo dây xa</strong>,
+              giải pháp có thể là tính lại công suất loa, đổi biến áp amply,
+              chia vùng loa hoặc chỉnh điện áp đường truyền — không phải lúc nào cũng cần thay loa.
             </p>
           </header>
 
           {/* SOLUTION LIST */}
-          <section aria-label="Danh sách giải pháp điện công nghiệp">
+          <section aria-label="Danh sách giải pháp hệ thống loa truyền thanh">
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
               {solutions.map((sol, i) => (
@@ -470,7 +493,7 @@ export function Home() {
                           href={`/giai-phap/${sol.slug}`}
                           className="text-accent font-black uppercase text-xs tracking-widest hover:underline"
                         >
-                          Xem chi tiết giải pháp
+                          Xem chi tiết cách xử lý
                         </a>
                       </footer>
 
@@ -500,19 +523,32 @@ export function Home() {
                 id="kiem-tra-dien-nha-xuong"
                 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter"
               >
-                Kiểm tra nguyên nhân điện yếu nhà xưởng
+                Máy chạy yếu? Motor nóng? Nhảy aptomat?
               </h2>
 
               <p className="text-xl text-slate-300 mb-6 max-w-2xl mx-auto font-medium leading-relaxed">
-                Chỉ cần cung cấp <strong>công suất máy</strong>, <strong>điện áp đo được</strong> và
-                <strong> chiều dài dây cấp nguồn</strong>, kỹ sư có thể xác định
-                <strong> sụt áp</strong>, <strong>quá dòng khởi động</strong> hoặc
-                <strong> thiếu công suất biến áp</strong>.
+                Chỉ cần gửi hình đồng hồ đo điện hoặc mô tả hiện tượng máy đang gặp
+                kỹ sư sẽ xác định có phải do sụt áp, lệch pha hay thiếu nguồn hay không.
               </p>
 
               <p className="text-sm text-slate-400 mb-12 max-w-xl mx-auto">
                 Không cần mua thiết bị. Phân tích giúp bạn trước khi sửa chữa hoặc thay máy.
               </p>
+
+              {/* ====== TECHNICAL CONTEXT (SEO GOLD - invisible UI) ====== */}
+              <div className="sr-only" aria-hidden="false">
+                Công cụ phân tích điện áp nhà xưởng dựa trên công thức sụt áp 3 pha:
+
+                ΔU = √3 × I × (R cosφ + X sinφ) × L
+
+                Áp dụng cho động cơ công nghiệp, máy CNC, máy ép nhựa và hệ thống sản xuất.
+                Phân tích nguyên nhân điện yếu gồm:
+                - Sụt áp đường dây do tiết diện dây nhỏ
+                - Quá dòng khởi động motor
+                - Nguồn cấp không đủ công suất
+                - Mất cân bằng pha
+              </div>
+
             </header>
 
             {/* CTA */}
@@ -523,16 +559,32 @@ export function Home() {
                 className="inline-flex px-12 py-6 bg-accent text-white rounded-xl font-black text-xl hover:brightness-110 transition-all shadow-2xl shadow-orange-900/40 uppercase tracking-tight"
                 aria-label="Gửi thông số điện nhà xưởng để kỹ sư kiểm tra"
               >
-                Gửi thông số điện nhà xưởng
+                GỬI HIỆN TƯỢNG MÁY ĐANG GẶP
               </Link>
 
               <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-                Phản hồi kỹ thuật trong giờ làm việc: 5–15 phút
+                Không cần mua thiết bị • Không tính phí tư vấn • Phản hồi 5–15 phút
               </p>
+
+              {/* ===== INTERNAL KNOWLEDGE LINKS (TOPICAL AUTHORITY) ===== */}
+              <nav
+                aria-label="Kiến thức liên quan điện yếu nhà xưởng"
+                className="text-xs text-slate-400 pt-8 border-t border-white/10"
+              >
+                <span className="block mb-2 text-white/60 uppercase tracking-widest">
+                  Kiến thức liên quan
+                </span>
+
+                <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+                  <Link to="/kien-thuc/sut-ap-la-gi">Sụt áp đường dây là gì</Link>
+                  <Link to="/kien-thuc/dong-khoi-dong-dong-co">Dòng khởi động động cơ</Link>
+                  <Link to="/kien-thuc/chon-cong-suat-bien-ap">Cách chọn công suất biến áp</Link>
+                  <Link to="/kien-thuc/mat-can-bang-pha">Điện 3 pha bị lệch dòng (mất cân bằng pha)</Link>
+                </div>
+              </nav>
 
             </div>
 
-            {/* semantic decoration */}
             <Zap className="absolute -right-20 -bottom-20 h-96 w-96 text-white/5 rotate-12" aria-hidden="true" />
 
           </article>

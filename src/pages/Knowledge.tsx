@@ -2,13 +2,15 @@ import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, ArrowRight, Clock, User, ChevronRight, Zap } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { JsonLd } from '@/src/components/SEO';
+import { articleSchema, BASE_URL, breadcrumbSchema, buildGraph, extractFAQ, faqSchema, JsonLd, pageSchema, rootSchema, NAME_INFO } from '@/src/components/SEO';
 import { cn } from '@/src/lib/utils';
 import { supabase } from "@/src/lib/supabase";
 
 export function Knowledge() {
+
   const [articles, setArticles] = React.useState<any[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
+
   const activeCat = searchParams.get('cat') || '';
   const query = searchParams.get('q') || '';
 
@@ -18,8 +20,6 @@ export function Knowledge() {
     { id: 'error', name: 'Lỗi & Sự cố', slug: 'loi-su-co' },
     { id: 'standard', name: 'Tiêu chuẩn', slug: 'tieu-chuan' },
   ];
-
-  const baseUrl = "https://ips.vn";
 
   React.useEffect(() => {
     const loadArticles = async () => {
@@ -51,63 +51,69 @@ export function Knowledge() {
 
   const filteredArticles = articles;
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "CollectionPage",
-        "name": "Kiến thức kỹ thuật điện công nghiệp | IPS",
-        "description": "Thư viện kiến thức về máy biến áp, ổn áp, lỗi điện áp và tiêu chuẩn điện nhà xưởng.",
-        "url": `${baseUrl}/kien-thuc`,
-        "inLanguage": "vi-VN"
-      },
-      {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Trang chủ",
-            "item": baseUrl
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Kiến thức kỹ thuật",
-            "item": `${baseUrl}/kien-thuc`
-          }
-        ]
-      },
-      {
+  const url = `${BASE_URL}/kien-thuc`;
+
+  /* ================= COLLECTION PAGE ================= */
+
+  const collectionPage = {
+    ...pageSchema(
+      url,
+      `Kiến thức biến áp âm ly 70V – 100V | ${NAME_INFO}`
+    ),
+    "@type": "CollectionPage",
+    "description":
+      "Thư viện kiến thức kỹ thuật về biến áp âm ly 70V – 100V, cách tính công suất loa, xử lý méo tiếng và quá tải hệ thống PA.",
+    "breadcrumb": { "@id": `${url}#breadcrumb` }
+  };
+
+  /* ================= BREADCRUMB ================= */
+
+  const breadcrumb = breadcrumbSchema(url, [
+    { name: "Trang chủ", url: BASE_URL },
+    { name: "Kiến thức kỹ thuật", url }
+  ]);
+
+  /* ================= ITEM LIST ================= */
+
+  const itemList =
+    filteredArticles.length > 0
+      ? {
         "@type": "ItemList",
+        "@id": `${url}#itemlist`,
+        "numberOfItems": filteredArticles.length,
         "itemListElement": filteredArticles.map((a, i) => ({
           "@type": "ListItem",
           "position": i + 1,
-          "url": `${baseUrl}/kien-thuc/${a.slug}`,
+          "url": `${BASE_URL}/kien-thuc/${a.slug}`,
           "name": a.title
         }))
       }
-    ]
-  };
+      : undefined;
+
+  /* ================= FINAL GRAPH ================= */
+
+  const structuredData = buildGraph(
+    ...rootSchema["@graph"],
+    collectionPage,
+    breadcrumb,
+    ...(itemList ? [itemList] : [])
+  );
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData)
-        }}
-      />
-
+      <JsonLd data={structuredData} />
+      {/* HEADER */}
       {/* HEADER */}
       <section className="bg-white border-b border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-            Kiến thức kỹ thuật điện công nghiệp
+            Kiến Thức Biến Áp Âm Ly 70V – 100V & Hệ Thống PA
           </h1>
 
           <p className="text-lg text-slate-600 max-w-3xl font-medium">
-            Hướng dẫn chọn máy biến áp, ổn áp, xử lý lỗi điện áp và phân tích chất lượng điện năng trong nhà xưởng.
+            Thư viện hướng dẫn tính công suất loa, chọn biến áp âm ly phù hợp,
+            xử lý méo tiếng, quá tải và tối ưu vận hành hệ thống âm thanh công cộng
+            cho trường học, nhà xưởng và truyền thanh nội bộ.
           </p>
         </div>
       </section>
@@ -154,17 +160,19 @@ export function Knowledge() {
 
             <div className="bg-accent rounded-3xl p-8 text-white shadow-2xl shadow-orange-900/20">
               <h4 className="text-xl font-black mb-4 uppercase tracking-tight text-white">
-                Tư vấn kỹ thuật miễn phí
+                Tư Vấn Chọn Biến Áp Âm Ly Miễn Phí
               </h4>
+
               <p className="text-sm text-orange-50 mb-8 font-medium opacity-90">
-                Kỹ sư IPS hỗ trợ tính toán công suất và bắt bệnh hệ thống điện 24/7.
+                Kỹ sư {NAME_INFO} hỗ trợ tính toán tổng công suất loa, kiểm tra line 70V – 100V
+                và đề xuất cấu hình biến áp phù hợp cho hệ thống PA của bạn.
               </p>
 
               <Link
                 to="/gui-thong-so"
                 className="block w-full py-4 bg-white text-accent text-center rounded-xl font-black text-xs uppercase tracking-widest hover:bg-orange-50 transition-all"
               >
-                Gửi yêu cầu ngay
+                Gửi Thông Số Hệ Thống
               </Link>
             </div>
           </aside>
@@ -188,51 +196,50 @@ export function Knowledge() {
             {/* ARTICLE LIST */}
             <div className="grid grid-cols-1 gap-8">
               {filteredArticles.map((art) => (
-
                 <article
                   key={art.id}
                   className="group bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden hover:border-accent hover:shadow-2xl transition-all flex flex-col md:flex-row shadow-sm"
                 >
-
                   {/* IMAGE */}
-                  <div className="md:w-2/5 h-64 md:h-auto overflow-hidden">
-                    <Link to={`/kien-thuc/${art.slug}`} aria-label={art.title}>
-                      <img
-                        src={art.image_url}
-                        alt={`${art.title} - kiến thức điện công nghiệp IPS`}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-                        referrerPolicy="no-referrer"
-                      />
-                    </Link>
+                  <div className="w-full md:w-1/5 shrink-0">
+                    <div className="aspect-[4/3] overflow-hidden rounded-2xl md:m-6 md:mr-0">
+                      <Link to={`/kien-thuc/${art.slug}`} aria-label={art.title}>
+                        <img
+                          src={art.image_url || "/placeholder.jpg"}
+                          alt={`${art.title} | Biến áp âm ly 70V – 100V ${NAME_INFO}`}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </Link>
+                    </div>
                   </div>
 
                   {/* CONTENT */}
-                  <div className="p-10 md:w-3/5">
-
+                  <div className="p-8 md:w-4/5">
                     {/* META */}
                     <div className="flex items-center gap-4 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">
 
-                      {/* CATEGORY = TAXONOMY */}
-                      <Link
-                        to={`/kien-thuc?cat=${art.category}`}
-                        className="text-accent hover:underline"
-                      >
-                        {art.category}
-                      </Link>
+                      {art.category && (
+                        <Link
+                          to={`/kien-thuc?cat=${art.category}`}
+                          className="text-accent hover:underline"
+                        >
+                          {art.category}
+                        </Link>
+                      )}
 
-                      {/* DATE machine readable */}
-                      <time
-                        dateTime={art.published_at}
-                        className="flex items-center gap-1"
-                      >
-                        <Clock className="h-3 w-3" />
-                        {new Date(art.published_at).toLocaleDateString('vi-VN')}
-                      </time>
-
+                      {art.published_at && (
+                        <time
+                          dateTime={art.published_at}
+                          className="flex items-center gap-1"
+                        >
+                          <Clock className="h-3 w-3" />
+                          {new Date(art.published_at).toLocaleDateString("vi-VN")}
+                        </time>
+                      )}
                     </div>
 
-                    {/* TITLE = MAIN ANCHOR */}
+                    {/* TITLE */}
                     <h2 className="text-2xl font-black text-slate-900 mb-6 leading-tight uppercase tracking-tight">
                       <Link
                         to={`/kien-thuc/${art.slug}`}
@@ -247,18 +254,17 @@ export function Knowledge() {
                       {art.summary}
                     </p>
 
-                    {/* SEO ANCHOR TEXT */}
+                    {/* INTERNAL LINK CTA */}
                     <Link
                       to={`/kien-thuc/${art.slug}`}
                       className="flex items-center gap-2 text-accent font-black text-xs uppercase tracking-widest"
                     >
-                      Xem chi tiết: {art.title}
+                      Đọc bài phân tích kỹ thuật
                       <ArrowRight className="h-4 w-4" />
                     </Link>
 
                   </div>
                 </article>
-
               ))}
             </div>
           </main>
@@ -300,87 +306,67 @@ export function ArticleDetail({ slug }: { slug: string }) {
 
   if (!article) return <div className="p-20 text-center">Đang tải...</div>;
 
-  const baseUrl = "https://industrial-power-solutions.vercel.app";
-  const articleUrl = `${baseUrl}/kien-thuc/${article.slug}`;
+  const articleUrl = `${BASE_URL}/kien-thuc/${article.slug}`;
 
-  const id = {
-    article: `${articleUrl}#article`,
-    webpage: `${articleUrl}#webpage`,
-    breadcrumb: `${articleUrl}#breadcrumb`,
-    organization: `${baseUrl}#organization`
+  /* ================= WEBPAGE ================= */
+  const webpage = {
+    ...pageSchema(articleUrl, article.title),
+    "@type": "WebPage",
+    "mainEntity": { "@id": `${articleUrl}#article` }
   };
 
-  const faqEntities = extractFAQ(article.content);
-
-  const faqLd =
-    faqEntities.length >= 2
-      ? {
-        "@type": "FAQPage",
-        "@id": `${articleUrl}#faq`,
-        "mainEntity": faqEntities
-      }
-      : null;
-
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": id.organization,
-        "name": "IPS - Industrial Power Solutions",
-        "url": baseUrl,
-        "logo": {
-          "@type": "ImageObject",
-          "url": `${baseUrl}/logo.png`
-        }
-      },
-      {
-        "@type": "WebPage",
-        "@id": id.webpage,
-        "url": articleUrl,
-        "name": article.title,
-        "isPartOf": { "@id": id.organization },
-        "breadcrumb": { "@id": id.breadcrumb },
-        "inLanguage": "vi-VN"
-      },
-
-      {
-        "@type": "BreadcrumbList",
-        "@id": id.breadcrumb,
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "Trang chủ", "item": baseUrl },
-          { "@type": "ListItem", "position": 2, "name": "Kiến thức", "item": `${baseUrl}/kien-thuc` },
-          { "@type": "ListItem", "position": 3, "name": article.title, "item": articleUrl }
-        ]
-      },
-      {
-        "@type": "TechArticle",
-        "@id": id.article,
-        "headline": article.title,
-        "description": article.summary,
-        "image": article.image_url,
-        "datePublished": article.created_at ?? new Date().toISOString(),
-        "dateModified": article.updated_at ?? article.created_at ?? new Date().toISOString(),
-        "mainEntityOfPage": { "@id": id.webpage },
-        "author": { "@type": "Person", "name": "Kỹ sư IPS" },
-        "publisher": { "@id": id.organization },
-        "articleSection": article.category,
-        "keywords": article.title,
-        "inLanguage": "vi-VN"
-      },
-      ...(faqLd ? [faqLd] : [])
+  /* ================= ARTICLE ================= */
+  const articleNode = {
+    ...articleSchema({
+      slug: article.slug,
+      title: article.title,
+      summary: article.summary,
+      image_url: article.image_url
+    }),
+    "@id": `${articleUrl}#article`,
+    "mainEntityOfPage": { "@id": articleUrl },
+    "inLanguage": "vi-VN",
+    "keywords": [
+      "biến áp âm ly 70V",
+      "biến áp 100V",
+      "tính công suất loa",
+      "hệ thống PA"
     ]
   };
 
+  /* ================= BREADCRUMB ================= */
+  const breadcrumb = breadcrumbSchema(articleUrl, [
+    { name: "Trang chủ", url: BASE_URL },
+    { name: "Kiến thức biến áp âm ly", url: `${BASE_URL}/kien-thuc` },
+    { name: article.title, url: articleUrl }
+  ]);
+
+  /* ================= FAQ ================= */
+  const faqEntities = extractFAQ(article.content);
+
+  const faq =
+    faqEntities && faqEntities.length >= 2
+      ? faqSchema(
+        faqEntities.map(f => ({
+          q: f.name,
+          a: f.acceptedAnswer.text
+        })),
+        articleUrl
+      )
+      : undefined;
+
+  /* ================= FINAL GRAPH ================= */
+  const structuredData = buildGraph(
+    ...rootSchema["@graph"], // Organization + Website global
+    webpage,
+    breadcrumb,
+    articleNode,
+    ...(faq ? [faq] : [])
+  );
+
   return (
     <div className="bg-white min-h-screen pb-24">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData)
-        }}
-      />
-
+      <JsonLd data={structuredData} />
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest mb-12">
           <Link to="/kien-thuc" itemProp="url" className="hover:text-accent">
@@ -409,7 +395,7 @@ export function ArticleDetail({ slug }: { slug: string }) {
             <span itemProp="author" itemScope itemType="https://schema.org/Person"
               className="flex items-center gap-1">
               <User className="h-3 w-3" />
-              <span itemProp="name">Kỹ sư IPS</span>
+              <span itemProp="name">Kỹ sư {NAME_INFO}</span>
             </span>
 
           </div>
@@ -425,16 +411,23 @@ export function ArticleDetail({ slug }: { slug: string }) {
           </p>
         </header>
 
-        <figure className="aspect-video rounded-3xl overflow-hidden mb-16 shadow-2xl" itemProp="image" itemScope itemType="https://schema.org/ImageObject">
-          <img
-            src={article.image_url}
-            alt={article.title}
-            className="w-full h-full object-cover"
-            itemProp="url"
-            loading="eager"
-          />
-          <meta itemProp="caption" content={article.title} />
-        </figure>
+        <div className="flex justify-center mb-16">
+          <figure
+            className="w-full md:w-3/4 aspect-[16/9] rounded-2xl overflow-hidden shadow-lg"
+            itemProp="image"
+            itemScope
+            itemType="https://schema.org/ImageObject"
+          >
+            <img
+              src={article.image_url}
+              alt={article.title}
+              className="w-full h-full object-cover"
+              itemProp="url"
+              loading="eager"
+            />
+            <meta itemProp="caption" content={article.title} />
+          </figure>
+        </div>
 
         <div className="prose prose-slate prose-lg max-w-none markdown-body">
           <ReactMarkdown
@@ -473,38 +466,31 @@ export function ArticleDetail({ slug }: { slug: string }) {
         </div>
 
         {/* In-article CTA */}
-        <section
-          className="my-24 p-12 bg-primary rounded-[3rem] text-white relative overflow-hidden shadow-2xl"
-          itemScope
-          itemType="https://schema.org/Service"
-        >
-
-          <meta itemProp="serviceType" content="Tư vấn tính toán công suất điện nhà xưởng" />
-          <meta itemProp="provider" content="IPS" />
+        <section className="my-24 p-12 bg-primary rounded-[3rem] text-white relative overflow-hidden shadow-2xl">
 
           <div className="relative z-10">
 
             <h2
               className="text-3xl font-black mb-6 uppercase tracking-tighter"
-              itemProp="name"
             >
-              Dịch vụ tính toán công suất điện nhà xưởng
+              Tư vấn chọn biến áp âm ly phù hợp cho hệ thống truyền thanh 70V – 100V
             </h2>
 
             <p
               className="text-slate-300 mb-10 max-w-xl font-medium text-lg"
-              itemProp="description"
             >
-              Gửi thông số tải máy CNC, máy ép, lò nung hoặc dây chuyền sản xuất.
-              Kỹ sư điện IPS sẽ phân tích sụt áp, lựa chọn máy biến áp và đề xuất cấu hình nguồn điện phù hợp trong vòng 2 giờ.
+              Gửi thông số tổng công suất loa, sơ đồ đấu nối và khoảng cách truyền tải.
+              Chúng tôi sẽ phân tích tổng tải thực tế, đề xuất biến áp 70V – 100V phù hợp
+              và đảm bảo hệ thống âm thanh công cộng hoạt động ổn định, không méo tiếng,
+              không quá nhiệt khi vận hành liên tục.
             </p>
 
             <Link
               to="/gui-thong-so"
-              itemProp="url"
               className="inline-flex items-center gap-3 px-10 py-5 bg-accent text-white rounded-xl font-black uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-xl shadow-orange-900/20"
             >
-              Gửi thông số tải để nhận bản tính toán <ArrowRight className="h-5 w-5" />
+              Gửi thông số hệ thống để được tư vấn cấu hình
+              <ArrowRight className="h-5 w-5" />
             </Link>
 
           </div>
@@ -514,23 +500,4 @@ export function ArticleDetail({ slug }: { slug: string }) {
       </section>
     </div>
   );
-}
-
-function extractFAQ(content: string) {
-  const regex = /## (.+?)\n([\s\S]*?)(?=\n##|$)/g;
-  const faqs = [];
-  let match;
-
-  while ((match = regex.exec(content))) {
-    faqs.push({
-      "@type": "Question",
-      "name": match[1],
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": match[2].replace(/\n/g, ' ').slice(0, 300)
-      }
-    });
-  }
-
-  return faqs.slice(0, 5);
 }

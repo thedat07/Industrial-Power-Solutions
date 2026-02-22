@@ -7,10 +7,8 @@ import { Products, ProductDetail } from './pages/Products';
 import { Manufacturing } from './pages/Manufacturing';
 import { Applications, ApplicationDetail } from './pages/Applications';
 import { Knowledge, ArticleDetail } from './pages/Knowledge';
-import { Calculators } from './pages/Calculators';
 import { Projects, ProjectDetail } from './pages/Projects';
 import { LeadForm } from './pages/LeadForm';
-import { DocumentCenter } from './pages/DocumentCenter';
 
 function ProductDetailWrapper() {
   const { slug } = useParams();
@@ -48,10 +46,8 @@ export default function App() {
             <Route path="/ung-dung/:slug" element={<ApplicationDetailWrapper />} />
             <Route path="/kien-thuc" element={<Knowledge />} />
             <Route path="/kien-thuc/:slug" element={<ArticleDetailWrapper />} />
-            <Route path="/cong-cu" element={<Calculators />} />
             <Route path="/cong-trinh" element={<Projects />} />
             <Route path="/cong-trinh/:slug" element={<ProjectDetailWrapper />} />
-            <Route path="/tai-lieu" element={<DocumentCenter />} />
             <Route path="/gui-thong-so" element={<LeadForm />} />
           </Routes>
         </main>

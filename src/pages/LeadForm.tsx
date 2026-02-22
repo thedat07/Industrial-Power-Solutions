@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Phone, Building2, Upload, Send, CheckCircle2, AlertCircle, Zap } from 'lucide-react';
+import { ADDRESS, BASE_URL, buildGraph, EMAIL, JsonLd, NAME_INFO, ORG_ID, pageSchema, rootSchema, TELEPHONE, TELEPHONE_TEXT } from '../components/SEO';
 
 export function LeadForm() {
   const [status, setStatus] = React.useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
@@ -14,48 +15,40 @@ export function LeadForm() {
     application: '',
   });
 
-  const baseUrl = "https://ips-power.vn";
+  const url = `${BASE_URL}/tinh-cong-suat`;
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
+  /* ================= SERVICE ================= */
 
-      {
-        "@type": "Organization",
-        "@id": `${baseUrl}#org`,
-        "name": "IPS - Industrial Power Solutions",
-        "url": baseUrl,
-        "logo": `${baseUrl}/logo.png`,
-        "contactPoint": [{
-          "@type": "ContactPoint",
-          "telephone": "+84-900-123-456",
-          "contactType": "technical support",
-          "areaServed": "VN",
-          "availableLanguage": ["vi"]
-        }]
-      },
-
-      {
-        "@type": "Service",
-        "@id": `${baseUrl}/tinh-cong-suat#service`,
-        "name": "Tính công suất và chọn máy biến áp công nghiệp",
-        "provider": { "@id": `${baseUrl}#org` },
-        "areaServed": "Vietnam",
-        "serviceType": "Electrical Engineering Consulting",
-        "description": "Phân tích phụ tải, sụt áp, chọn kVA và cấu hình máy biến áp hoặc ổn áp công nghiệp theo tiêu chuẩn IEC/TCVN"
-      },
-
-      {
-        "@type": "ContactPage",
-        "@id": `${baseUrl}/tinh-cong-suat#contact`,
-        "url": `${baseUrl}/tinh-cong-suat`,
-        "name": "Gửi thông số tải điện để nhận báo giá",
-        "about": { "@id": `${baseUrl}/tinh-cong-suat#service` },
-        "inLanguage": "vi-VN"
-      }
-
-    ]
+  const service = {
+    "@type": "Service",
+    "@id": `${url}#service`,
+    "name": "Tính công suất và chọn máy biến áp công nghiệp",
+    "provider": { "@id": ORG_ID },
+    "areaServed": {
+      "@type": "Country",
+      "name": "Vietnam"
+    },
+    "serviceType": "Electrical Engineering Consulting",
+    "description":
+      "Phân tích phụ tải, sụt áp, chọn kVA và cấu hình máy biến áp hoặc ổn áp công nghiệp theo tiêu chuẩn IEC/TCVN"
   };
+
+  /* ================= PAGE ================= */
+
+  const webpage = {
+    ...pageSchema(url, `Tính công suất & chọn máy biến áp | ${NAME_INFO}`),
+    "description":
+      `Gửi thông số tải điện để kỹ sư ${NAME_INFO} phân tích phụ tải, tính kVA và đề xuất cấu hình máy biến áp phù hợp.`,
+    "mainEntity": { "@id": `${url}#service` }
+  };
+
+  /* ================= FINAL GRAPH ================= */
+
+  const structuredData = buildGraph(
+    ...rootSchema["@graph"],
+    webpage,
+    service
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,12 +69,7 @@ export function LeadForm() {
   if (status === 'success') {
     return (
       <main className="max-w-2xl mx-auto px-4 py-32 text-center">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData)
-          }}
-        />
+        <JsonLd data={structuredData} />
         <header>
           <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-10 shadow-xl">
             <CheckCircle2 className="h-12 w-12" />
@@ -92,7 +80,7 @@ export function LeadForm() {
           </h1>
 
           <p className="text-lg text-slate-600 mb-6 font-medium leading-relaxed">
-            Kỹ sư điện IPS đang phân tích công suất, dòng tải và điện áp hệ thống của bạn để lựa chọn đúng máy biến áp hoặc ổn áp công nghiệp.
+            Kỹ sư điện {NAME_INFO} đang phân tích công suất, dòng tải và điện áp hệ thống của bạn để lựa chọn đúng máy biến áp hoặc ổn áp công nghiệp.
           </p>
 
           <p className="text-slate-500 mb-12">
@@ -135,7 +123,7 @@ export function LeadForm() {
 
             <p className="text-xl text-slate-700 font-medium leading-relaxed">
               Điền điện áp đầu vào, điện áp đầu ra, công suất tải hoặc mô tả hệ thống điện.
-              Kỹ sư IPS sẽ tính toán kVA phù hợp, kiểm tra sụt áp và đề xuất cấu hình thiết bị
+              Kỹ sư {NAME_INFO} sẽ tính toán kVA phù hợp, kiểm tra sụt áp và đề xuất cấu hình thiết bị
               theo tiêu chuẩn IEC/TCVN cho nhà xưởng hoặc dây chuyền sản xuất của bạn.
             </p>
 
@@ -165,8 +153,8 @@ export function LeadForm() {
                   <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">
                     Hotline kỹ sư điện
                   </h3>
-                  <a href="tel:0900123456" className="text-2xl font-black text-slate-900 tracking-tight hover:text-accent transition-colors">
-                    0900 123 456
+                  <a href={`tel:${TELEPHONE}`} className="text-2xl font-black text-slate-900 tracking-tight hover:text-accent transition-colors">
+                    {TELEPHONE_TEXT}
                   </a>
                   <p className="text-xs text-slate-400 font-bold uppercase mt-1">
                     Hỗ trợ sự cố điện 24/7 toàn quốc
@@ -183,9 +171,15 @@ export function LeadForm() {
                   <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">
                     Email nhận hồ sơ kỹ thuật
                   </h3>
-                  <a href="mailto:baogia@ips-power.vn" className="text-2xl font-black text-slate-900 tracking-tight hover:text-accent transition-colors">
-                    baogia@ips-power.vn
-                  </a>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(EMAIL);
+                      alert("Đã copy email!");
+                    }}
+                    className="text-2xl font-black text-slate-900 tracking-tight hover:text-accent transition-colors"
+                  >
+                    {EMAIL}
+                  </button>
                   <p className="text-xs text-slate-400 font-bold uppercase mt-1">
                     Phản hồi trong 2 giờ làm việc
                   </p>
@@ -202,7 +196,7 @@ export function LeadForm() {
                     Nhà máy sản xuất & bảo hành
                   </h3>
                   <p className="text-lg font-black text-slate-900 leading-tight">
-                    KCN Quang Minh, Mê Linh, Hà Nội
+                    {ADDRESS}
                   </p>
                   <p className="text-xs text-slate-400 font-bold uppercase mt-1">
                     Có sẵn linh kiện & đội bảo trì tại chỗ
@@ -292,7 +286,7 @@ export function LeadForm() {
                       value={formData.phone}
                       onChange={e => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
-                      placeholder="0988123456"
+                      placeholder={`tel:${TELEPHONE}`}
                     />
                   </div>
                 </div>

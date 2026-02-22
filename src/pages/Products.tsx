@@ -1,25 +1,34 @@
 import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Filter, Download, ShieldCheck } from 'lucide-react';
-import { JsonLd } from '@/src/components/SEO';
+import { BASE_URL, breadcrumbSchema, buildGraph, JsonLd, NAME_INFO, ORG_ID, pageSchema, productSchema, rootSchema, TELEPHONE, TELEPHONE_TEXT } from '@/src/components/SEO';
 import { supabase } from "@/src/lib/supabase";
 
 export function Products() {
   const [products, setProducts] = React.useState<any[]>([]);
   const [categories, setCategories] = React.useState<any[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [catMap, setCatMap] = React.useState<Record<string, number>>({});
+  const [page, setPage] = React.useState(1);
+  const pageSize = 20;
+  const [total, setTotal] = React.useState(0);
 
   // Filters
   const cat = searchParams.get('cat') || '';
   const power = searchParams.get('power') || '';
-  const vin = searchParams.get('vin') || '';
-  const vout = searchParams.get('vout') || '';
+  const vin = searchParams.get('line') || '';
+  const vout = searchParams.get('imp') || '';
+  const totalPages = Math.ceil(total / pageSize);
+
+  React.useEffect(() => {
+    setPage(1);
+  }, [cat, power, vin, vout]);
 
   React.useEffect(() => {
     const loadCategories = async () => {
       const { data, error } = await supabase
         .from("categories")
-        .select("*");
+        .select("id,slug,name");
 
       if (error) {
         console.error("Load categories error:", error);
@@ -28,41 +37,54 @@ export function Products() {
       }
 
       setCategories(data ?? []);
+
+      // tạo map slug -> id
+      const map: Record<string, number> = {};
+      (data ?? []).forEach(c => map[c.slug] = c.id);
+      setCatMap(map);
     };
 
     loadCategories();
   }, []);
 
   React.useEffect(() => {
+    if (!Object.keys(catMap).length) return; // chờ categories load xong
+
     const loadProducts = async () => {
+
       let query = supabase
         .from("products")
         .select(`
         *,
-        categories(*)
-      `);
+        categories(name,slug)
+      `, { count: "exact" });
 
-      if (cat) query = query.eq("categories.slug", cat);
+      // ✅ FIX CAT FILTER
+      if (cat && catMap[cat]) {
+        query = query.eq("category_id", catMap[cat]);
+      }
 
-      if (power) query = query.lte("power_kva", Number(power));
+      if (power) query = query.lte("power_watt", Number(power));
+      if (vin) query = query.eq("line_voltage", vin);
+      if (vout) query = query.ilike("impedance", `%${vout}%`);
 
-      if (vin) query = query.eq("input_voltage", vin);
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
 
-      if (vout) query = query.eq("output_voltage", vout);
-
-      const { data, error } = await query;
+      const { data, error, count } = await query.range(from, to);
 
       if (error) {
-        console.error("Load products error:", error);
+        console.error(error);
         setProducts([]);
         return;
       }
 
       setProducts(data ?? []);
+      setTotal(count ?? 0);
     };
 
     loadProducts();
-  }, [cat, power, vin, vout]);
+  }, [cat, power, vin, vout, page, catMap]);
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -71,30 +93,80 @@ export function Products() {
     setSearchParams(newParams);
   };
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      generateProductListSchema(products),
-    ]
+  const url = `${BASE_URL}/san-pham`;
+
+  /* ================= COLLECTION PAGE ================= */
+
+  const collectionPage = {
+    ...pageSchema(url, `Biến áp amply & biến áp đổi nguồn quấn theo yêu cầu | ${NAME_INFO}`),
+    "@type": ["CollectionPage", "Service"],
+    description: `Danh mục biến áp amply, biến áp truyền thanh và biến áp đổi nguồn quấn theo yêu cầu cho hệ thống loa phường, trường học và dự án nông thôn mới.`,
+    breadcrumb: { "@id": `${url}#breadcrumb` }
   };
+
+  /* ================= BREADCRUMB ================= */
+
+  const breadcrumb = breadcrumbSchema(url, [
+    { name: "Trang chủ", url: BASE_URL },
+    { name: "Sản phẩm", url }
+  ]);
+
+  /* ================= ITEM LIST ================= */
+
+  const productList = {
+    "@type": "OfferCatalog",
+    "@id": `${url}#catalog`,
+    name: "Danh mục biến áp quấn theo yêu cầu",
+    itemListElement: products.map((p, i) => ({
+      "@type": "Offer",
+      position: i + 1,
+      itemOffered: {
+        "@type": ["Product", "Service"],
+        "@id": `${BASE_URL}/san-pham/${p.slug}#product`,
+        name: p.name,
+        url: `${BASE_URL}/san-pham/${p.slug}`,
+        provider: { "@id": ORG_ID },
+        areaServed: "VN"
+      }
+    }))
+  };
+
+  /* ================= FINAL GRAPH ================= */
+
+  const structuredData = buildGraph(
+    ...rootSchema["@graph"],
+    collectionPage,
+    breadcrumb,
+    productList
+  );
 
   return (
     <div className="bg-slate-50 min-h-screen">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData)
-        }}
-      />
+      <JsonLd data={structuredData} />
       {/* SEO Header */}
       <section className="bg-white border-b border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-6">Sản phẩm máy biến áp – ổn áp – tủ điện công nghiệp</h1>
+
+          <h1 className="text-4xl font-bold text-slate-900 mb-6">
+            Biến áp amply – biến áp truyền thanh – quấn theo yêu cầu
+          </h1>
+
           <div className="prose prose-slate max-w-4xl text-slate-600">
             <p>
-              IPS tự hào là nhà cung cấp hàng đầu các thiết bị điện công nghiệp chất lượng cao. Chúng tôi chuyên sản xuất và phân phối các dòng máy biến áp 3 pha, ổn áp servo, biến áp trung thế và hạ thế đạt tiêu chuẩn IEC và TCVN. Với dải công suất rộng từ 10kVA đến 2500kVA, các sản phẩm của IPS được tin dùng trong các nhà máy sản xuất, khu công nghiệp và các dự án năng lượng tái tạo trên toàn quốc.
+              {NAME_INFO} chuyên quấn và gia công <strong>biến áp amply</strong>,
+              <strong> biến áp truyền thanh xã – thôn</strong> và
+              <strong> biến áp đổi nguồn 100V – 110V – 220V</strong> theo thông số thực tế.
+              Sản phẩm được thiết kế phù hợp cho hệ thống loa phường, trường học,
+              khu dân cư và dự án nông thôn mới.
+            </p>
+
+            <p>
+              Nhận quấn theo yêu cầu công suất, điện áp vào/ra và cấu hình tải.
+              Hỗ trợ tính toán sụt áp đường dây và lựa chọn công suất phù hợp
+              trước khi sản xuất.
             </p>
           </div>
+
         </div>
       </section>
 
@@ -102,99 +174,111 @@ export function Products() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           {/* Filter Sidebar */}
           <aside className="space-y-8">
+
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
               <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
                 <Filter className="h-4 w-4" /> Bộ lọc kỹ thuật
               </h3>
 
               <div className="space-y-6">
+
+                {/* Loại biến áp */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-3">Loại thiết bị</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-3">
+                    Loại biến áp
+                  </label>
                   <select
                     value={cat}
                     onChange={e => updateFilter('cat', e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-accent"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm"
                   >
                     <option value="">Tất cả</option>
-                    {categories.map(c => <option key={c.id} value={c.slug}>{c.name}</option>)}
+                    {categories
+                      .filter(c => !c.parent_id)
+                      .map(c => (
+                        <option key={c.id} value={c.slug}>
+                          {c.name}
+                        </option>
+                      ))}
                   </select>
                 </div>
 
+                {/* Công suất */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-3">Công suất tối đa (kVA)</label>
-                  <input
-                    type="range"
-                    min="10"
-                    max="2500"
-                    step="10"
-                    value={power || 2500}
+                  <label className="block text-xs font-bold text-slate-700 mb-3">
+                    Công suất (W)
+                  </label>
+                  <select
+                    value={power}
                     onChange={e => updateFilter('power', e.target.value)}
-                    className="w-full accent-accent"
-                  />
-                  <div className="flex justify-between text-[10px] text-slate-500 font-bold mt-2">
-                    <span>10kVA</span>
-                    <span className="text-accent">{power || '2500'}kVA</span>
-                    <span>2500kVA</span>
-                  </div>
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-accent"
+                  >
+                    <option value="">Tất cả</option>
+                    <option value="5">≤ 5W</option>
+                    <option value="10">≤ 10W</option>
+                    <option value="20">≤ 20W</option>
+                    <option value="40">≤ 40W</option>
+                    <option value="60">≤ 60W</option>
+                    <option value="100">≤ 100W</option>
+                  </select>
                 </div>
 
+                {/* Điện áp đường dây */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-3">Điện áp vào</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-3">
+                    Điện áp đường dây
+                  </label>
                   <select
                     value={vin}
-                    onChange={e => updateFilter('vin', e.target.value)}
+                    onChange={e => updateFilter('line', e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-accent"
                   >
                     <option value="">Tất cả</option>
-                    <option value="380V">380V</option>
-                    <option value="22kV">22kV</option>
-                    <option value="35kV">35kV</option>
+                    <option value="100V">100V Line</option>
+                    <option value="70V">70V Line</option>
+                    <option value="4-8Ω">Loa trở kháng thấp</option>
                   </select>
                 </div>
 
+                {/* Trở kháng tải */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-3">Điện áp ra</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-3">
+                    Trở kháng tải
+                  </label>
                   <select
                     value={vout}
-                    onChange={e => updateFilter('vout', e.target.value)}
+                    onChange={e => updateFilter('imp', e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-accent"
                   >
                     <option value="">Tất cả</option>
-                    <option value="200V/220V">200V/220V</option>
-                    <option value="380V">380V</option>
-                    <option value="400V">400V</option>
+                    <option value="4Ω">4Ω</option>
+                    <option value="8Ω">8Ω</option>
+                    <option value="16Ω">16Ω</option>
+                    <option value="600Ω">600Ω</option>
                   </select>
                 </div>
+
               </div>
             </div>
 
+            {/* CTA */}
             <div className="bg-slate-900 p-8 rounded-2xl text-white">
-              <h4 className="font-bold mb-4">Tư vấn kỹ thuật?</h4>
-              <p className="text-xs text-slate-400 mb-6">Kỹ sư của chúng tôi sẵn sàng hỗ trợ bạn tính toán công suất phù hợp.</p>
-              <Link to="/gui-thong-so" className="block w-full py-3 bg-accent text-center rounded-xl font-bold text-sm hover:brightness-110 transition-all">
-                Gửi yêu cầu ngay
+              <h4 className="font-bold mb-4">Không thấy đúng thông số?</h4>
+              <p className="text-xs text-slate-400 mb-6">
+                Gửi thông số thực tế, chúng tôi quấn theo yêu cầu.
+              </p>
+              <Link
+                to="/gui-thong-so"
+                className="block w-full py-3 bg-accent text-center rounded-xl font-bold text-sm hover:brightness-110 transition-all"
+              >
+                Gửi yêu cầu quấn biến áp
               </Link>
             </div>
+
           </aside>
 
-          {/* Product List */}
-          <main className="lg:col-span-3 space-y-12">
-            {/* Category Cards (if no specific category selected) */}
-            {!cat && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {categories.map(c => (
-                  <Link key={c.id} to={`/san-pham?cat=${c.slug}`} className="group bg-white p-8 rounded-2xl border border-slate-200 hover:border-accent transition-all flex items-center justify-between shadow-sm">
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900 group-hover:text-accent transition-colors">{c.name}</h3>
-                      <p className="text-sm text-slate-500 mt-2">Dải công suất 10kVA - 2500kVA</p>
-                    </div>
-                    <ArrowRight className="h-6 w-6 text-slate-300 group-hover:text-accent transition-all" />
-                  </Link>
-                ))}
-              </div>
-            )}
 
-            {/* Model Table */}
+          <main className="lg:col-span-3 space-y-12">
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
               <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <h3 className="font-bold text-slate-900">Danh sách Model phù hợp</h3>
@@ -204,12 +288,12 @@ export function Products() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                      <th className="px-6 py-4">Model / Tên sản phẩm</th>
+                      <th className="px-6 py-4">Model</th>
                       <th className="px-6 py-4">Công suất</th>
-                      <th className="px-6 py-4">Điện áp vào</th>
-                      <th className="px-6 py-4">Điện áp ra</th>
-                      <th className="px-6 py-4">Làm mát</th>
-                      <th className="px-6 py-4 text-right">Thao tác</th>
+                      <th className="px-6 py-4">Line</th>
+                      <th className="px-6 py-4">Ω</th>
+                      <th className="px-6 py-4">Ứng dụng</th>
+                      <th className="px-6 py-4 text-right">Chi tiết</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -221,13 +305,13 @@ export function Products() {
                           </Link>
                         </td>
                         <td className="px-6 py-5">
-                          <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded">{p.power_kva}kVA</span>
+                          <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded">{p.power_watt}W</span>
                         </td>
-                        <td className="px-6 py-5 text-sm text-slate-600">{p.input_voltage}</td>
-                        <td className="px-6 py-5 text-sm text-slate-600">{p.output_voltage}</td>
-                        <td className="px-6 py-5 text-sm text-slate-600">{p.cooling}</td>
+                        <td className="px-6 py-5 text-sm text-slate-600">{p.line_voltage}</td>
+                        <td className="px-6 py-5 text-sm text-slate-600">{p.impedance}</td>
+                        <td className="px-6 py-5 text-sm text-slate-600">{p.applications}</td>
                         <td className="px-6 py-5 text-right">
-                          <Link to={`/san-pham/${p.slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-accent opacity-0 group-hover:opacity-100 transition-all">
+                          <Link to={`/san-pham/${p.slug}`} className="inline-flex items-center gap-1 text-xs font-bold text-accent transition-all">
                             Chi tiết <ArrowRight className="h-3 w-3" />
                           </Link>
                         </td>
@@ -237,23 +321,51 @@ export function Products() {
                 </table>
               </div>
             </div>
+            <div className="flex items-center justify-between px-6 py-5 bg-slate-50 border-t">
 
-            {/* Grid View for Visuals */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {products.slice(0, 4).map(p => (
-                <div key={p.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all">
-                  <div className="aspect-video overflow-hidden">
-                    <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  </div>
-                  <div className="p-8">
-                    <h3 className="text-xl font-bold text-slate-900 mb-4">{p.name}</h3>
-                    <p className="text-sm text-slate-500 mb-6 line-clamp-2">{p.description}</p>
-                    <Link to={`/san-pham/${p.slug}`} className="inline-flex items-center gap-2 text-accent font-bold text-sm">
-                      Xem Datasheet & Bản vẽ <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
-              ))}
+              <div className="text-xs text-slate-500 font-bold">
+                Trang {page} / {totalPages}
+              </div>
+
+              <div className="flex gap-2">
+
+                <button
+                  disabled={page === 1}
+                  onClick={() => setPage(p => p - 1)}
+                  className="px-4 py-2 text-xs font-bold bg-white border rounded-lg disabled:opacity-40"
+                >
+                  ← Trước
+                </button>
+
+                {Array.from({ length: totalPages })
+                  .slice(Math.max(0, page - 3), page + 2)
+                  .map((_, i) => {
+                    const p = Math.max(1, page - 2) + i;
+                    if (p > totalPages) return null;
+
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => setPage(p)}
+                        className={`px-4 py-2 text-xs font-bold rounded-lg border
+                            ${p === page
+                            ? "bg-accent text-white border-accent"
+                            : "bg-white"}`}
+                      >
+                        {p}
+                      </button>
+                    );
+                  })}
+
+                <button
+                  disabled={page === totalPages}
+                  onClick={() => setPage(p => p + 1)}
+                  className="px-4 py-2 text-xs font-bold bg-white border rounded-lg disabled:opacity-40"
+                >
+                  Sau →
+                </button>
+
+              </div>
             </div>
           </main>
         </div>
@@ -264,44 +376,64 @@ export function Products() {
 
 export function ProductDetail({ slug }: { slug: string }) {
   const [product, setProduct] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const loadArticle = async () => {
+    let ignore = false;
+
+    const loadProduct = async () => {
+      setLoading(true);
+
       const { data, error } = await supabase
         .from("products")
         .select("*")
         .eq("slug", slug)
-        .single();
+        .maybeSingle(); // <-- quan trọng
+
+      if (ignore) return;
 
       if (error) {
-        console.error("Load article error:", error);
+        console.error("Load product error:", error);
         setProduct(null);
-        return;
+      } else {
+        setProduct(data ?? null);
       }
 
-      setProduct(data ?? null);
+      setLoading(false);
     };
 
-    loadArticle();
+    loadProduct();
+
+    return () => {
+      ignore = true; // tránh setState sau unmount / slug change
+    };
   }, [slug]);
 
-  if (!product) return <div className="p-20 text-center">Đang tải...</div>;
+  if (loading)
+    return <div className="p-20 text-center">Đang tải...</div>;
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      generateProductSchema(product),
-    ]
-  };
+  if (!product)
+    return <div className="p-20 text-center">Không tìm thấy sản phẩm</div>;
+
+  const url = `${BASE_URL}/san-pham/${product.slug}`;
+
+  const schema = buildGraph(
+    ...rootSchema["@graph"],
+
+    pageSchema(url, product.name),
+
+    breadcrumbSchema(url, [
+      { name: "Trang chủ", url: BASE_URL },
+      { name: "Sản phẩm", url: `${BASE_URL}/san-pham` },
+      { name: product.name, url }
+    ]),
+
+    productSchema(product)
+  );
 
   return (
     <div className="bg-white min-h-screen">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData)
-        }}
-      />
+      <JsonLd data={schema} />
       {/* Breadcrumbs */}
       <div className="bg-slate-50 border-b border-slate-100 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -326,18 +458,31 @@ export function ProductDetail({ slug }: { slug: string }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-8 bg-slate-50 rounded-3xl border border-slate-100">
                 <h3 className="text-sm font-black text-slate-900 mb-4 uppercase tracking-tight flex items-center gap-2">
-                  <Download className="h-5 w-5 text-accent" /> Tài liệu kỹ thuật
+                  <ShieldCheck className="h-5 w-5 text-accent" />
+                  Gia công theo yêu cầu
                 </h3>
-                <div className="space-y-3">
-                  <a href={product.catalog_url} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-accent transition-all group">
-                    <span className="text-xs font-bold text-slate-600 group-hover:text-accent">Catalogue PDF</span>
-                    <Download className="h-4 w-4 text-slate-300 group-hover:text-accent" />
-                  </a>
-                  <a href={product.drawing_url} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-accent transition-all group">
-                    <span className="text-xs font-bold text-slate-600 group-hover:text-accent">Bản vẽ CAD (2D/3D)</span>
-                    <Download className="h-4 w-4 text-slate-300 group-hover:text-accent" />
-                  </a>
-                </div>
+
+                <ul className="space-y-3 text-xs text-slate-600 font-medium">
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-3 w-3 text-accent mt-0.5" />
+                    Nhận quấn biến áp theo công suất và điện áp yêu cầu
+                  </li>
+
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-3 w-3 text-accent mt-0.5" />
+                    Tư vấn matching tải loa – ampli – trở kháng
+                  </li>
+
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-3 w-3 text-accent mt-0.5" />
+                    Hỗ trợ thiết kế Tap công suất cho hệ 70V / 100V Line
+                  </li>
+
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="h-3 w-3 text-accent mt-0.5" />
+                    Nhận đơn số lượng nhỏ và OEM theo lô
+                  </li>
+                </ul>
               </div>
 
               <div className="p-8 bg-slate-50 rounded-3xl border border-slate-100">
@@ -345,24 +490,36 @@ export function ProductDetail({ slug }: { slug: string }) {
                   <ShieldCheck className="h-5 w-5 text-accent" /> Cam kết chất lượng
                 </h3>
                 <ul className="space-y-2 text-xs text-slate-500 font-medium">
-                  <li className="flex items-center gap-2"><ArrowRight className="h-3 w-3 text-accent" /> Bảo hành 24 tháng tận nơi</li>
-                  <li className="flex items-center gap-2"><ArrowRight className="h-3 w-3 text-accent" /> Kiểm định Quatest 1/2/3</li>
-                  <li className="flex items-center gap-2"><ArrowRight className="h-3 w-3 text-accent" /> Hỗ trợ kỹ thuật 24/7</li>
+                  <li className="flex items-center gap-2"><ArrowRight className="h-3 w-3 text-accent" /> Quấn thủ công – kiểm soát từng lớp dây</li>
+                  <li className="flex items-center gap-2"><ArrowRight className="h-3 w-3 text-accent" /> Matching đúng trở kháng tầng công suất & loa</li>
+                  <li className="flex items-center gap-2"><ArrowRight className="h-3 w-3 text-accent" /> Test thực tế bằng ampli trước khi giao</li>
                 </ul>
               </div>
             </div>
 
             <div className="prose prose-slate max-w-none">
-              <h2 className="text-3xl font-black text-slate-900 mb-6 uppercase tracking-tighter">Đặc điểm cấu tạo & Ưu điểm</h2>
-              <p className="text-lg text-slate-600 leading-relaxed mb-8">{product.description}</p>
+              <h2 className="text-3xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
+                Đặc tính âm thanh & thiết kế
+              </h2>
+              <p className="text-lg text-slate-600 leading-relaxed mb-8">
+                {product.description ?? `
+                Biến áp được thiết kế tối ưu cho ampli đèn và bán dẫn công suất nhỏ.
+                Ưu tiên đáp tuyến phẳng, méo thấp và độ động tốt ở dải trung trầm.
+                `}
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="p-8 bg-slate-950 text-white rounded-3xl">
                   <h4 className="text-accent font-black uppercase text-xs tracking-widest mb-4">Vật liệu chế tạo</h4>
-                  <p className="text-sm text-slate-400 leading-relaxed">{product.material}. Lõi thép Silic định hướng độ từ thẩm cao, tổn hao thấp.</p>
+                  <p>
+                    {product.material ?? "Đồng / Nhôm cao cấp"}.
+                    Lõi thép Silic định hướng độ từ thẩm cao, tổn hao thấp.
+                  </p>
                 </div>
                 <div className="p-8 bg-slate-950 text-white rounded-3xl">
                   <h4 className="text-accent font-black uppercase text-xs tracking-widest mb-4">Tiêu chuẩn áp dụng</h4>
-                  <p className="text-sm text-slate-400 leading-relaxed">Sản xuất và thử nghiệm theo tiêu chuẩn {product.standard}, đảm bảo vận hành an toàn trong môi trường khắc nghiệt.</p>
+                  <p className="text-sm text-slate-400 leading-relaxed">
+                    Thiết kế theo đặc tính tải audio, tối ưu đáp tuyến tần số và độ méo hài tổng (THD).
+                  </p>
                 </div>
               </div>
             </div>
@@ -379,41 +536,52 @@ export function ProductDetail({ slug }: { slug: string }) {
                   <table className="w-full border-collapse">
                     <tbody className="divide-y divide-slate-100">
                       {[
-                        ['Công suất', `${product.power_kva} kVA`],
-                        ['Điện áp vào', product.input_voltage],
-                        ['Điện áp ra', product.output_voltage],
-                        ['Tổ đấu dây', product.wiring],
-                        ['Làm mát', product.cooling],
-                        ['Độ chính xác', product.accuracy],
-                        ['Khả năng quá tải', product.overload],
-                      ].map(([label, value]) => (
-                        <tr key={label}>
-                          <td className="py-4 pl-0 border-0 bg-transparent text-xs font-bold text-slate-500 uppercase tracking-tight">{label}</td>
-                          <td className="py-4 pr-0 border-0 bg-transparent text-sm font-black text-slate-900 text-right">{value}</td>
-                        </tr>
-                      ))}
+                        ['Công suất danh định', `${product.power_watt} W`],
+                        ['Điện áp đường dây', product.line_voltage],
+                        ['Trở kháng tải', product.impedance],
+                        ['Các mức công suất (Tap)', product.taps],
+                        ['Dải tần đáp ứng', product.frequency_range],
+                        ['Loại lõi', product.core_type],
+                        ['Chống nhiễu', product.shielding ? 'Có' : null],
+                      ]
+                        .filter(([, value]) => value)
+                        .map(([label, value]) => (
+                          <tr key={label}>
+                            <td className="py-4 pl-0 border-0 bg-transparent text-xs font-bold text-slate-500 uppercase tracking-tight">
+                              {label}
+                            </td>
+                            <td className="py-4 pr-0 border-0 bg-transparent text-sm font-black text-slate-900 text-right">
+                              {value}
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
 
                 <div className="space-y-4">
                   <Link to="/gui-thong-so" className="w-full py-5 bg-accent text-white rounded-2xl font-black text-lg uppercase tracking-tighter hover:brightness-110 transition-all shadow-2xl shadow-orange-900/20 flex items-center justify-center gap-3">
-                    Yêu cầu báo giá kỹ thuật <ArrowRight className="h-5 w-5" />
+                    Gửi thông số ampli cần quấn<ArrowRight className="h-5 w-5" />
                   </Link>
-                  <a href="tel:0900123456" className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg uppercase tracking-tighter hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
-                    Gọi tư vấn: 0900-123-456
+                  <a href={`tel:${TELEPHONE}`} className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg uppercase tracking-tighter hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
+                    Gọi tư vấn: {`tel:${TELEPHONE_TEXT}`}
                   </a>
                 </div>
               </div>
 
               <div className="p-8 bg-slate-50 rounded-3xl border border-slate-100">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Ứng dụng phù hợp</h4>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Phù hợp cho</h4>
                 <div className="flex flex-wrap gap-2">
-                  {product.applications?.split(',').map((app: string) => (
-                    <span key={app} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-black text-slate-600 uppercase tracking-widest">
-                      {app.trim()}
+                  {product.applications
+                    ? product.applications.split(',').map((app: string) => (
+                      <span key={app}>
+                        {app.trim()}
+                      </span>
+                    ))
+                    : <span className="text-xs text-slate-400">
+                      Ampli đèn SE / Push Pull / Headamp / DAC tube buffer
                     </span>
-                  ))}
+                  }
                 </div>
               </div>
             </div>
@@ -422,148 +590,4 @@ export function ProductDetail({ slug }: { slug: string }) {
       </div>
     </div>
   );
-}
-
-export function generateProductListSchema(products: any[]) {
-  const baseUrl = window.location.origin;
-  const url = `${baseUrl}/san-pham`;
-
-  const id = {
-    org: `${baseUrl}#org`,
-    collection: `${url}#collection`,
-    list: `${url}#itemlist`
-  };
-
-  return {
-    "@graph": [
-
-      {
-        "@type": "Organization",
-        "@id": id.org,
-        "name": "IPS - Industrial Power Solutions",
-        "url": baseUrl,
-        "logo": `${baseUrl}/logo.png`
-      },
-
-      {
-        "@type": "CollectionPage",
-        "@id": id.collection,
-        "url": url,
-        "name": "Danh sách sản phẩm biến áp công nghiệp",
-        "isPartOf": { "@id": id.org },
-        "mainEntity": { "@id": id.list },
-        "inLanguage": "vi-VN"
-      },
-
-      {
-        "@type": "ItemList",
-        "@id": id.list,
-        "numberOfItems": products.length,
-        "itemListElement": products.map((p, index) => ({
-          "@type": "ListItem",
-          "position": index + 1,
-          "url": `${baseUrl}/san-pham/${p.slug}`,
-          "item": {
-            "@type": "Product",
-            "@id": `${baseUrl}/san-pham/${p.slug}#product`,
-            "name": p.name
-          }
-        }))
-      }
-
-    ]
-  };
-}
-
-function generateProductSchema(product: any) {
-  const baseUrl = window.location.origin;
-  const url = `${baseUrl}/san-pham/${product.slug}`;
-
-  const id = {
-    org: `${baseUrl}#org`,
-    webpage: `${url}#webpage`,
-    product: `${url}#product`,
-    breadcrumb: `${url}#breadcrumb`
-  };
-
-  return {
-    "@graph": [
-
-      {
-        "@type": "Organization",
-        "@id": id.org,
-        "name": "IPS - Industrial Power Solutions",
-        "url": baseUrl,
-        "logo": `${baseUrl}/logo.png`
-      },
-
-      {
-        "@type": "WebPage",
-        "@id": id.webpage,
-        "url": url,
-        "name": product.name,
-        "isPartOf": { "@id": id.org },
-        "breadcrumb": { "@id": id.breadcrumb },
-        "inLanguage": "vi-VN"
-      },
-
-      {
-        "@type": "BreadcrumbList",
-        "@id": id.breadcrumb,
-        "itemListElement": [
-          { "@type": "ListItem", position: 1, name: "Trang chủ", item: baseUrl },
-          { "@type": "ListItem", position: 2, name: "Sản phẩm", item: `${baseUrl}/san-pham` },
-          { "@type": "ListItem", position: 3, name: product.name, item: url }
-        ]
-      },
-
-      {
-        "@type": "Product",
-        "@id": id.product,
-        "name": product.name,
-        "image": product.image_url,
-        "description": product.seo_description || product.description,
-        "category": "Industrial Transformer",
-        "brand": { "@type": "Brand", "name": "IPS" },
-        "manufacturer": { "@id": id.org },
-
-        "additionalProperty": [
-          { "@type": "PropertyValue", name: "Công suất", value: `${product.power_kva} kVA` },
-          { "@type": "PropertyValue", name: "Điện áp vào", value: product.input_voltage },
-          { "@type": "PropertyValue", name: "Điện áp ra", value: product.output_voltage },
-          { "@type": "PropertyValue", name: "Làm mát", value: product.cooling },
-          { "@type": "PropertyValue", name: "Tổ đấu dây", value: product.wiring },
-          { "@type": "PropertyValue", name: "Tiêu chuẩn", value: product.standard }
-        ],
-
-        "offers": {
-          "@type": "Offer",
-          "url": url,
-          "price": "0",
-          "priceCurrency": "VND",
-          "availability": "https://schema.org/InStock",
-          "priceSpecification": {
-            "@type": "PriceSpecification",
-            "priceType": "https://schema.org/Quote"
-          }
-        },
-
-        "hasPart": [
-          product.catalog_url && {
-            "@type": "DigitalDocument",
-            "name": "Catalogue PDF",
-            "encodingFormat": "application/pdf",
-            "contentUrl": product.catalog_url
-          },
-          product.drawing_url && {
-            "@type": "DigitalDocument",
-            "name": "Bản vẽ CAD",
-            "encodingFormat": "application/zip",
-            "contentUrl": product.drawing_url
-          }
-        ].filter(Boolean)
-      }
-
-    ]
-  };
 }
