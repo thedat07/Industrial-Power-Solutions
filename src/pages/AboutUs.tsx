@@ -1,39 +1,64 @@
 import React from 'react';
-import { ShieldCheck, Target, Users, CheckCircle2, Zap, MapPin, Phone, Mail } from 'lucide-react';
-import { ADDRESS, EMAIL, JsonLd, rootSchema, TELEPHONE, TELEPHONE_TEXT } from '../components/SEO';
+import { ShieldCheck, Target, Users, CheckCircle2, Zap, MapPin, Phone, Mail, RefreshCcw } from 'lucide-react';
+import { ADDRESS, EMAIL, JsonLd, rootSchema, TELEPHONE, TELEPHONE_TEXT, YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, YOUR_PUBLIC_KEY } from '../components/SEO';
+import emailjs from '@emailjs/browser';
 
 export function AboutUs() {
+
+  const [status, setStatus] = React.useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (status === 'sending') return;
+
+    setStatus('sending');
+
+    try {
+      const result = await emailjs.sendForm(
+        YOUR_SERVICE_ID,
+        YOUR_TEMPLATE_ID,
+        e.currentTarget,
+        YOUR_PUBLIC_KEY
+      );
+
+      console.log("Email sent:", result.text);
+      setStatus('success');
+      e.currentTarget.reset();
+
+    } catch (error) {
+      console.error("Email error:", error);
+      setStatus('error');
+    }
+  };
+
   return (
     <div className="bg-white min-h-screen pb-24">
       <JsonLd data={rootSchema} />
       <section
         className="bg-primary py-32 text-white relative overflow-hidden"
-        aria-labelledby="gioi-thieu-cong-ty-dien-cong-nghiep"
+        aria-labelledby="gioi-thieu-xuong-san-xuat-bien-ap-am-ly"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl">
 
             <header>
               <h1
-                id="gioi-thieu-cong-ty-dien-cong-nghiep"
+                id="gioi-thieu-xuong-san-xuat-bien-ap-am-ly"
                 className="text-5xl md:text-7xl font-black mb-8 uppercase tracking-tighter leading-tight"
               >
-                Đơn vị kỹ thuật điện công nghiệp <span className="text-accent">15 năm kinh nghiệm</span>
+                Xưởng sản xuất biến áp âm ly <span className="text-accent">15 năm kinh nghiệm</span>
               </h1>
             </header>
 
             <p className="text-xl text-slate-200 leading-relaxed font-medium mb-6">
-              Chúng tôi chuyên phân tích và xử lý các vấn đề
-              <strong> sụt áp nhà xưởng</strong>,
-              <strong> quá dòng khởi động</strong>,
-              <strong> mất cân bằng pha</strong> và
-              <strong> nguồn cấp không đủ công suất</strong>
-              cho dây chuyền sản xuất.
+              Chuyên sản xuất và gia công <strong>biến áp âm ly 70V / 100V</strong>
+              cho hệ thống loa truyền thanh, trường học, nhà xưởng và khu dân cư.
             </p>
 
             <p className="text-lg text-slate-400 leading-relaxed">
-              Giải pháp bao gồm thiết kế cấp nguồn, lựa chọn biến áp, ổn áp và tách tải
-              nhằm đảm bảo máy CNC, máy ép, máy hàn và motor công suất lớn vận hành ổn định.
+              Nhận quấn biến áp theo công suất yêu cầu, hỗ trợ tính toán tổng công suất loa
+              và cấu hình phù hợp nhằm đảm bảo hoạt động ổn định, bền bỉ lâu dài.
             </p>
 
           </div>
@@ -45,25 +70,30 @@ export function AboutUs() {
       {/* Core Values */}
       <section
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-20"
-        aria-labelledby="nang-luc-ky-thuat"
+        aria-labelledby="nang-luc-san-xuat-bien-ap-am-ly"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
 
           {[
             {
-              title: 'Kiểm tra tải thực tế trước khi bàn giao',
-              desc: 'Tất cả biến áp và tủ điện được chạy tải 80–100% để đo điện áp, nhiệt độ và độ sụt áp theo tiêu chuẩn IEC/TCVN.',
+              title: 'Chạy tải 100% công suất định mức',
+              desc: 'Mỗi biến áp được vận hành đủ công suất trước khi bàn giao để đảm bảo ổn định và không quá nhiệt.',
               icon: ShieldCheck
             },
             {
-              title: 'Phân tích nguyên nhân sự cố điện',
-              desc: 'Kỹ sư đo điện áp khi máy hoạt động, tính dòng khởi động và đánh giá khả năng cấp nguồn trước khi đề xuất thiết bị.',
+              title: 'Tính toán công suất hệ thống loa',
+              desc: 'Hỗ trợ xác định tổng công suất loa 70V / 100V để lựa chọn biến áp phù hợp, tránh quá tải.',
               icon: Target
             },
             {
-              title: 'Hỗ trợ xử lý sự cố tại xưởng',
-              desc: 'Kiểm tra hiện tượng nhảy aptomat, motor nóng hoặc CNC lỗi điện áp trực tiếp tại hệ thống đang vận hành.',
+              title: 'Gia công theo yêu cầu',
+              desc: 'Nhận quấn biến áp theo công suất, điện áp và cấu hình đầu ra theo yêu cầu thực tế.',
               icon: Users
+            },
+            {
+              title: 'Cam kết bảo hành trọn đời',
+              desc: 'Sẵn sàng thu lại sửa chữa hoặc quấn lại khi sản phẩm gặp lỗi kỹ thuật do sản xuất.',
+              icon: RefreshCcw
             },
           ].map((val, i) => (
             <article
@@ -90,7 +120,7 @@ export function AboutUs() {
       {/* History & Vision */}
       <section
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32"
-        aria-labelledby="lich-su-don-vi-dien-cong-nghiep"
+        aria-labelledby="lich-su-san-xuat-bien-ap-am-ly"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
@@ -98,15 +128,15 @@ export function AboutUs() {
           <div className="relative">
             <img
               src="https://rbyjreoslnnhqcuyoptq.supabase.co/storage/v1/object/sign/image/BienAp_1.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85YjZkYTZiMi1mYjE1LTRlYWItYTZlNS0zYTUyZTc2ZmM5NGYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZS9CaWVuQXBfMS5qcGciLCJpYXQiOjE3NzE3NTY0MjAsImV4cCI6MTgwMzI5MjQyMH0.1Xuy0aU2pECZjrNfyj57lGSsDgWo4XU7MvviqdhAkkg"
-              alt="Khu vực lắp ráp và kiểm tra thiết bị điện công nghiệp"
+              alt="Khu vực quấn dây và lắp ráp biến áp âm ly"
               className="rounded-[3rem] shadow-2xl border-8 border-slate-50"
               referrerPolicy="no-referrer"
             />
 
             <div className="absolute -bottom-10 -right-10 bg-primary text-white p-12 rounded-[2.5rem] shadow-2xl border-4 border-white/10">
-              <div className="text-5xl font-black mb-2 text-accent">2009</div>
+              <div className="text-5xl font-black mb-2 text-accent">1998</div>
               <div className="text-xs font-black uppercase tracking-widest text-slate-400">
-                Bắt đầu hoạt động kỹ thuật điện công nghiệp
+                Bắt đầu sản xuất biến áp âm ly
               </div>
             </div>
           </div>
@@ -116,10 +146,10 @@ export function AboutUs() {
 
             <header>
               <h2
-                id="lich-su-don-vi-dien-cong-nghiep"
+                id="lich-su-san-xuat-bien-ap-am-ly"
                 className="text-4xl font-black text-slate-900 uppercase tracking-tighter"
               >
-                Quá trình hoạt động & phạm vi kỹ thuật
+                Quá trình hoạt động & phạm vi sản xuất
               </h2>
             </header>
 
@@ -131,11 +161,11 @@ export function AboutUs() {
                 </div>
                 <div>
                   <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">
-                    Thiết kế và lắp đặt hệ thống cấp nguồn
+                    Sản xuất biến áp âm ly theo công suất yêu cầu
                   </h3>
                   <p>
-                    Tính toán công suất biến áp, tiết diện dây dẫn và vị trí đặt tủ điện
-                    nhằm hạn chế sụt áp và quá dòng khởi động cho máy sản xuất.
+                    Gia công biến áp 70V / 100V với nhiều mức công suất khác nhau,
+                    phù hợp hệ thống loa truyền thanh, nhà xưởng, trường học và khu dân cư.
                   </p>
                 </div>
               </div>
@@ -146,11 +176,11 @@ export function AboutUs() {
                 </div>
                 <div>
                   <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">
-                    Phân tích sự cố điện trong quá trình vận hành
+                    Tính toán công suất & cấu hình phù hợp
                   </h3>
                   <p>
-                    Đo điện áp khi tải thay đổi, kiểm tra mất cân bằng pha,
-                    đánh giá nguyên nhân gây nóng motor, lỗi CNC hoặc nhảy aptomat.
+                    Hỗ trợ khách hàng xác định tổng công suất loa,
+                    lựa chọn biến áp phù hợp để đảm bảo ổn định và tránh quá tải.
                   </p>
                 </div>
               </div>
@@ -159,78 +189,76 @@ export function AboutUs() {
 
             <aside className="p-10 bg-slate-50 rounded-[2.5rem] border-2 border-slate-100">
               <p className="text-lg text-slate-700 font-medium leading-relaxed">
-                Hoạt động tập trung vào môi trường nhà xưởng sản xuất:
-                cơ khí, nhựa, bao bì, gỗ, thực phẩm và gia công kim loại —
-                nơi yêu cầu nguồn điện ổn định để tránh dừng dây chuyền.
+                Sản phẩm được sử dụng trong hệ thống loa truyền thanh xã/phường,
+                trường học, nhà xưởng, nhà thờ và các khu vực cần phát thanh diện rộng.
               </p>
               <div className="mt-6 font-black text-slate-900 uppercase tracking-widest text-xs">
                 Phạm vi ứng dụng thực tế
               </div>
             </aside>
-
           </div>
         </div>
       </section>
 
       {/* Certifications */}
+      {/* Quality Standards */}
       <section
         className="bg-slate-50 py-32 border-y border-slate-200"
-        aria-labelledby="chung-nhan-thiet-bi-dien"
+        aria-labelledby="kiem-tra-chat-luong-bien-ap"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 
           <header>
             <h2
-              id="chung-nhan-thiet-bi-dien"
+              id="kiem-tra-chat-luong-bien-ap"
               className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter"
             >
-              Tiêu chuẩn kiểm tra & chứng nhận kỹ thuật
+              Kiểm tra chất lượng trước khi xuất xưởng
             </h2>
 
             <p className="text-slate-600 max-w-3xl mx-auto mb-16 leading-relaxed">
-              Thiết bị và hệ thống điện được kiểm tra theo tiêu chuẩn an toàn,
-              độ bền cách điện và khả năng chịu tải trước khi đưa vào vận hành.
+              Mỗi biến áp âm ly được kiểm tra điện áp đầu ra, công suất tải
+              và độ an toàn cách điện nhằm đảm bảo vận hành ổn định trong hệ thống 70V / 100V.
             </p>
           </header>
 
           <ul className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {[
               {
-                name: "ISO 9001:2015",
-                desc: "Quy trình quản lý chất lượng trong sản xuất và kiểm tra thiết bị điện"
+                name: "Đo điện áp đầu ra",
+                desc: "Kiểm tra sai số điện áp 70V / 100V trước khi bàn giao"
               },
               {
-                name: "Quatest 3",
-                desc: "Kiểm định thông số điện và độ an toàn vận hành"
+                name: "Chạy tải công suất",
+                desc: "Vận hành đủ công suất định mức để đảm bảo ổn định"
               },
               {
-                name: "Kiểm tra tải thực tế",
-                desc: "Chạy tải 100% công suất trước khi lắp đặt"
+                name: "Đo cách điện",
+                desc: "Kiểm tra an toàn giữa cuộn sơ cấp và thứ cấp"
               },
               {
-                name: "Đo điện áp vận hành",
-                desc: "Đánh giá sụt áp và mất cân bằng pha tại hiện trường"
+                name: "Kiểm tra nhiệt độ",
+                desc: "Đánh giá mức tăng nhiệt khi hoạt động liên tục"
               },
-            ].map((cert, i) => (
+            ].map((item, i) => (
               <li key={i} className="space-y-4">
 
                 <div className="aspect-square bg-white rounded-3xl p-8 shadow-xl border border-slate-100 flex items-center justify-center">
-                  <span className="text-3xl font-black text-slate-300">
-                    {cert.name}
+                  <span className="text-xl font-black text-slate-400 text-center">
+                    {item.name}
                   </span>
                 </div>
 
                 <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">
-                  {cert.name}
+                  {item.name}
                 </h3>
 
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  {cert.desc}
+                  {item.desc}
                 </p>
 
               </li>
             ))}
-
           </ul>
         </div>
       </section>
@@ -246,7 +274,7 @@ export function AboutUs() {
             {/* CONTACT DETAILS */}
             <address className="not-italic">
               <h2 className="text-4xl font-black mb-10 uppercase tracking-tighter">
-                Liên hệ tư vấn hệ thống điện công nghiệp
+                Liên hệ tư vấn biến áp âm ly & hệ thống loa
               </h2>
 
               <div className="space-y-8">
@@ -258,10 +286,10 @@ export function AboutUs() {
                   </div>
                   <div>
                     <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">
-                      Nhà máy sản xuất
+                      Cơ sở sản xuất & bảo hành
                     </div>
                     <p className="text-lg font-bold">
-                     {ADDRESS}
+                      {ADDRESS}
                     </p>
                   </div>
                 </div>
@@ -273,7 +301,7 @@ export function AboutUs() {
                   </div>
                   <div>
                     <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">
-                      Hotline kỹ thuật
+                      Hotline tư vấn kỹ thuật
                     </div>
                     <a
                       href={`tel:${TELEPHONE}`}
@@ -291,12 +319,12 @@ export function AboutUs() {
                   </div>
                   <div>
                     <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">
-                      Email báo giá
+                      Email nhận thông số & báo giá
                     </div>
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(EMAIL);
-                        alert("Đã copy email!");
+                        alert("Đã sao chép email!");
                       }}
                       className="text-lg font-bold hover:underline"
                     >
@@ -311,36 +339,36 @@ export function AboutUs() {
             {/* CONTACT FORM */}
             <div className="bg-white/5 backdrop-blur-md rounded-[2.5rem] p-10 border border-white/10">
               <h3 className="text-2xl font-black mb-8 uppercase tracking-tight">
-                Gửi thông số máy để kiểm tra sụt áp
+                Gửi thông tin vẫn đề
               </h3>
-
-              <form className="space-y-4">
-
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="sr-only">Họ và tên</label>
+                  <label className="sr-only">Tên đơn vị / Công trình</label>
                   <input
-                    name="name"
+                    name="company"
                     type="text"
-                    placeholder="Họ và tên"
+                    placeholder="Tên đơn vị / Công trình"
                     className="w-full px-6 py-4 bg-white/10 border border-white/10 rounded-xl outline-none focus:border-accent font-bold"
+                    required
                   />
                 </div>
 
                 <div>
-                  <label className="sr-only">Email</label>
+                  <label className="sr-only">Số điện thoại</label>
                   <input
-                    name="email"
-                    type="email"
-                    placeholder="Email"
+                    name="phone"
+                    type="tel"
+                    placeholder="Số điện thoại kỹ thuật"
                     className="w-full px-6 py-4 bg-white/10 border border-white/10 rounded-xl outline-none focus:border-accent font-bold"
+                    required
                   />
                 </div>
 
                 <div>
-                  <label className="sr-only">Thông số máy</label>
+                  <label className="sr-only">Thông tin hệ thống</label>
                   <textarea
-                    name="message"
-                    placeholder="Công suất máy (kW), khoảng cách dây (m), hiện tượng gặp phải..."
+                    name="system_info"
+                    placeholder="Số lượng loa, công suất mỗi loa (W), chiều dài tuyến dây..."
                     className="w-full px-6 py-4 bg-white/10 border border-white/10 rounded-xl outline-none focus:border-accent font-bold"
                     rows={4}
                   />
@@ -348,10 +376,25 @@ export function AboutUs() {
 
                 <button
                   type="submit"
-                  className="w-full py-5 bg-accent text-white rounded-xl font-black uppercase text-xs tracking-widest hover:brightness-110 transition-all"
+                  disabled={status === 'sending'}
+                  className="w-full py-5 bg-accent text-white rounded-xl font-black uppercase text-xs tracking-widest hover:brightness-110 transition-all disabled:opacity-50"
                 >
-                  Gửi yêu cầu kiểm tra miễn phí
+                  {status === 'sending'
+                    ? 'Đang gửi...'
+                    : 'Gửi yêu cầu kiểm tra miễn phí'}
                 </button>
+
+                {status === 'success' && (
+                  <p className="text-green-400 font-bold text-sm text-center">
+                    ✅ Đã gửi thành công! Kỹ sư sẽ liên hệ sớm.
+                  </p>
+                )}
+
+                {status === 'error' && (
+                  <p className="text-red-400 font-bold text-sm text-center">
+                    ❌ Gửi thất bại. Vui lòng thử lại.
+                  </p>
+                )}
 
               </form>
             </div>

@@ -160,40 +160,42 @@ export function Home() {
 
               {/* TAG */}
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/20 border border-accent/30 rounded-lg text-accent text-[10px] font-black uppercase tracking-[0.2em] mb-8">
-                <AlertTriangle className="h-3 w-3" /> Biến áp amply truyền thanh
+                <AlertTriangle className="h-3 w-3" />
+                Xưởng sản xuất biến áp âm ly 70V / 100V
               </div>
 
-              {/* H1 - SEO INTENT */}
+              {/* H1 */}
               <h1 className="text-4xl md:text-7xl font-black text-white leading-[1.1] mb-8 uppercase tracking-tighter">
-                Sản xuất biến áp loa phường
+                Sản xuất biến áp truyền thanh
                 <span className="text-accent block">
                   70V • 100V Line • Phân vùng loa
                 </span>
               </h1>
 
-              {/* TECHNICAL DESCRIPTION - cực quan trọng cho SEO */}
+              {/* TECHNICAL DESCRIPTION */}
               <p className="text-lg md:text-xl text-white font-bold mb-4 leading-tight max-w-3xl">
-                Quấn biến áp amply cho hệ thống truyền thanh xã, thôn, trường học và khu dân cư.
-                Đảm bảo đủ công suất, không méo tiếng và hoạt động ổn định ngoài trời 24/7.
+                Chuyên quấn biến áp âm ly cho hệ thống truyền thanh xã, thôn, trường học
+                và khu dân cư. Đảm bảo đủ công suất, hạn chế méo tiếng và vận hành ổn định 24/7.
               </p>
 
-              {/* EXPLANATION - AI & GOOGLE */}
+              {/* EXPLANATION */}
               <p className="text-lg text-slate-400 mb-12 leading-relaxed max-w-2xl font-medium">
-                Thiết kế theo tổng công suất loa, chiều dài dây và điện áp đường truyền 70V/100V.
-                Hạn chế sụt áp, rè nhiễu và cháy loa khi phát thông báo liên tục.
+                Tính toán theo tổng công suất loa, chiều dài dây và cấu hình phân vùng 70V / 100V.
+                Giúp giảm sụt áp, hạn chế nhiễu và bảo vệ loa khi phát thông báo liên tục ngoài trời.
               </p>
 
               {/* CTA */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+
                 <div className="space-y-3">
                   <Link
                     to="/gui-thong-so"
                     className="inline-flex px-10 py-6 bg-accent text-white rounded-xl font-black text-xl hover:brightness-110 transition-all shadow-2xl shadow-orange-900/40 uppercase tracking-tight"
                   >
-                    Gửi cấu hình hệ thống loa
+                    Gửi thông số hệ thống loa
                   </Link>
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center sm:text-left">
-                    Tính công suất & số lượng biến áp miễn phí
+                    Tính công suất biến áp miễn phí
                   </p>
                 </div>
 
@@ -201,14 +203,16 @@ export function Home() {
                   to="/kien-thuc"
                   className="px-10 py-6 bg-white/5 backdrop-blur-md text-white border border-white/20 rounded-xl font-black text-xl hover:bg-white/10 transition-all uppercase tracking-tight"
                 >
-                  Hướng dẫn lắp đặt loa phường
+                  Hướng dẫn chọn biến áp 70V / 100V
                 </Link>
+
               </div>
 
-              <section className="py-10 border-y border-white/10 bg-white/[0.02]">
+              {/* SOCIAL PROOF */}
+              <section className="py-10 border-y border-white/10 bg-white/[0.02] mt-16">
                 <div className="max-w-6xl mx-auto px-6 text-center">
                   <p className="text-sm md:text-base font-semibold text-slate-300 tracking-wide">
-                    Phục vụ các hệ thống truyền thanh cơ sở – chương trình nông thôn mới – trường học – khu dân cư
+                    Phục vụ hệ thống truyền thanh cơ sở • chương trình nông thôn mới • trường học • khu dân cư
                   </p>
                 </div>
               </section>
@@ -225,11 +229,17 @@ export function Home() {
           {/* TITLE */}
           <div className="text-center mb-20">
             <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-              Vì sao loa phường bị rè, nhỏ hoặc chập chờn?
+              Vì sao hệ thống loa truyền thanh bị rè, nhỏ hoặc chập chờn?
             </h2>
-            <p className="text-slate-500 font-medium max-w-3xl mx-auto text-lg">
-              Phân tích theo công suất loa, chiều dài dây và điện áp đường truyền 70V/100V
-              để xác định đúng nguyên nhân trước khi thay biến áp hoặc amply.
+
+            <p className="text-slate-600 font-medium max-w-3xl mx-auto text-lg leading-relaxed">
+              Nguyên nhân thường đến từ quá tải công suất, sụt áp đường dây dài,
+              mất cân bằng phân vùng 70V/100V hoặc biến áp không đúng thông số thiết kế.
+            </p>
+
+            <p className="text-slate-400 font-medium max-w-3xl mx-auto text-base mt-4">
+              Chúng tôi phân tích tổng công suất loa, chiều dài dây dẫn và cấu hình phân vùng
+              trước khi đề xuất thay biến áp hoặc amply – tránh thay sai, tốn chi phí.
             </p>
           </div>
 
@@ -269,18 +279,22 @@ export function Home() {
           </div>
 
           {/* TECHNICAL NOTE */}
-          {/* TECHNICAL NOTE */}
           <div className="mt-20 max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-10 shadow-sm">
             <h3 className="font-black text-slate-900 mb-4 uppercase text-sm tracking-widest">
-              Nguyên lý hệ thống loa truyền thanh
+              Nguyên lý hệ thống loa truyền thanh 70V / 100V
             </h3>
+
+            <p className="text-slate-700 leading-relaxed mb-4">
+              Phần lớn tình trạng loa bị rè, nhỏ hoặc chập chờn không xuất phát từ hỏng loa,
+              mà do tính toán sai tổng công suất và lựa chọn biến áp không phù hợp.
+            </p>
+
             <p className="text-slate-700 leading-relaxed">
-              Hầu hết lỗi loa phường không phải do hỏng loa mà do chọn sai biến áp hoặc điện áp đường truyền.
-              Hệ thống 70V/100V line cần ghép đúng tổng công suất loa và trở kháng tải.
-              Nếu tải quá thấp amply sẽ nóng và méo tiếng, nếu tải quá cao âm thanh sẽ nhỏ và mất tiếng khi kéo dây xa.
+              Hệ thống 70V/100V line yêu cầu ghép đúng tổng công suất loa với điện áp đường truyền.
+              Nếu tổng tải quá thấp, amply sẽ quá dòng, nóng và méo tiếng.
+              Nếu tổng tải quá cao hoặc dây quá dài, hệ thống sẽ sụt áp khiến âm thanh nhỏ dần hoặc mất tiếng ở cuối tuyến.
             </p>
           </div>
-
         </div>
       </section>
 
@@ -312,60 +326,67 @@ export function Home() {
 
             {/* CONTENT */}
             <article className="space-y-10">
+
               <header>
-                <h2 id="vi-sao-khong-thay-loa-ngay" className="text-4xl font-black text-slate-900 uppercase tracking-tighter">
-                  Vì sao không nên thay loa hoặc amply ngay?
+                <h2
+                  id="vi-sao-khong-thay-loa-ngay"
+                  className="text-4xl font-black text-slate-900 uppercase tracking-tighter"
+                >
+                  Đừng thay loa hoặc amply khi chưa kiểm tra biến áp
                 </h2>
               </header>
 
               <div className="space-y-6 text-lg text-slate-600 font-medium leading-relaxed">
+
                 <p>
-                  Khoảng <strong>70% hệ thống loa phường bị rè hoặc nhỏ không phải do hỏng loa</strong>.
-                  Nguyên nhân thường là <strong>chọn sai biến áp</strong>,
-                  <strong> tổng công suất loa vượt thiết kế</strong> hoặc
-                  <strong>sụt áp trên đường dây 100V line</strong>.
+                  Khoảng <strong>70% hệ thống loa truyền thanh bị rè hoặc nhỏ không phải do hỏng loa</strong>.
+                  Nguyên nhân chính là <strong>biến áp không đủ công suất</strong>,
+                  <strong> chọn sai điện áp 70V / 100V</strong> hoặc
+                  <strong> tổng tải vượt thiết kế ban đầu</strong>.
                 </p>
 
                 <section className="p-8 bg-slate-50 rounded-3xl border-2 border-slate-100">
                   <h3 className="font-black text-slate-900 uppercase text-xs tracking-widest mb-4">
-                    Hậu quả khi xác định sai nguyên nhân
+                    Hậu quả khi dùng sai biến áp
                   </h3>
 
                   <ul className="space-y-3 list-disc pl-5 marker:text-red-600">
                     <li className="text-red-600 font-bold">
-                      Amply nóng và giảm tuổi thọ
+                      Amply quá tải, nóng và nhanh hỏng
                     </li>
                     <li className="text-red-600 font-bold">
-                      Loa tiếp tục rè hoặc cháy khi mở to
+                      Loa rè, méo tiếng hoặc cháy khi mở công suất lớn
                     </li>
                     <li className="text-red-600 font-bold">
-                      Tốn chi phí thay thiết bị nhưng lỗi vẫn lặp lại
+                      Thay thiết bị nhiều lần nhưng hệ thống vẫn không ổn định
                     </li>
                   </ul>
                 </section>
 
                 <p className="font-bold text-slate-900">
-                  Cần tính tổng công suất loa, chiều dài dây và điện áp đường truyền trước khi quyết định quấn hoặc thay biến áp.
+                  Giải pháp đúng là tính lại tổng công suất loa và quấn biến áp phù hợp với cấu hình thực tế,
+                  thay vì thay loa hoặc amply một cách cảm tính.
                 </p>
+
               </div>
 
-              <aside className="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Cam kết tư vấn">
+              <aside className="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Cam kết kỹ thuật">
 
                 <div className="flex gap-3 p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
                   <p className="text-xs font-bold uppercase leading-tight">
-                    Không quấn biến áp khi chưa rõ cấu hình hệ thống
+                    Thiết kế biến áp theo tổng tải thực tế
                   </p>
                 </div>
 
                 <div className="flex gap-3 p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
                   <p className="text-xs font-bold uppercase leading-tight">
-                    Ưu tiên tối ưu lại đấu nối trước khi thay thiết bị
+                    Tùy chọn 70V / 100V / phân vùng nhiều nhánh
                   </p>
                 </div>
 
                 <div className="flex gap-3 p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
                   <p className="text-xs font-bold uppercase leading-tight">
-                    Tư vấn miễn phí cho hệ thống truyền thanh xã, thôn
+                    Quấn theo yêu cầu – bảo hành trọn đời
                   </p>
                 </div>
 
@@ -383,14 +404,22 @@ export function Home() {
           {/* HEADER */}
           <header className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div>
-              <h2 id="kien-thuc-loa-phuong" className="text-4xl font-black mb-6 uppercase tracking-tighter">
-                Các lỗi hệ thống loa truyền thanh thường gặp
+              <h2
+                id="kien-thuc-loa-phuong"
+                className="text-4xl font-black mb-6 uppercase tracking-tighter"
+              >
+                Lỗi hệ thống loa truyền thanh thường gặp
               </h2>
 
-              <p className="text-slate-400 font-medium text-lg max-w-2xl">
-                Tổng hợp kinh nghiệm xử lý <strong>loa bị rè</strong>, <strong>âm thanh nhỏ</strong>,
-                <strong>ù nền 50Hz</strong> và <strong>sụt áp đường dây 100V line</strong>
-                trong hệ thống loa phường, trường học và khu dân cư.
+              <p className="text-slate-500 font-medium text-lg max-w-2xl leading-relaxed">
+                Tổng hợp lỗi thực tế khi sử dụng <strong>amply truyền thanh 70V / 100V</strong>
+                và <strong>biến áp loa</strong>: loa bị rè, âm thanh nhỏ,
+                ù nền 50Hz hoặc sụt áp đường dây cuối tuyến.
+              </p>
+
+              <p className="text-slate-400 font-medium text-base max-w-2xl mt-4 leading-relaxed">
+                Phân tích dựa trên kinh nghiệm sản xuất amply và quấn biến áp
+                cho hệ thống loa xã, trường học và khu dân cư.
               </p>
             </div>
 
@@ -444,21 +473,29 @@ export function Home() {
       </section>
 
       {/* 5. SOLUTIONS SECTION */}
-      {/* 5. SOLUTIONS SECTION */}
       <section className="py-32 bg-white" aria-labelledby="giai-phap-he-thong-loa">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* HEADER */}
           <header className="text-center mb-20">
-            <h2 id="giai-phap-he-thong-loa" className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-              Các hướng xử lý hệ thống loa truyền thanh
+            <h2
+              id="giai-phap-he-thong-loa"
+              className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter"
+            >
+              Giải pháp đồng bộ amply và biến áp cho hệ thống loa truyền thanh
             </h2>
 
             <p className="text-slate-600 font-medium max-w-3xl mx-auto text-lg leading-relaxed">
-              Tùy theo nguyên nhân <strong>loa bị rè</strong>, <strong>âm thanh nhỏ</strong>,
-              <strong>ù nền</strong> hoặc <strong>mất tiếng khi kéo dây xa</strong>,
-              giải pháp có thể là tính lại công suất loa, đổi biến áp amply,
-              chia vùng loa hoặc chỉnh điện áp đường truyền — không phải lúc nào cũng cần thay loa.
+              Khi <strong>loa bị rè</strong>, <strong>âm thanh nhỏ</strong>,
+              <strong>ù nền</strong> hoặc <strong>mất tiếng cuối tuyến</strong>,
+              nguyên nhân thường nằm ở cấu hình <strong>amply và biến áp 70V / 100V</strong>
+              chưa phù hợp với tổng công suất thực tế.
+            </p>
+
+            <p className="text-slate-500 font-medium max-w-3xl mx-auto text-base mt-4 leading-relaxed">
+              Giải pháp có thể là tính lại công suất, đổi amply đủ tải,
+              quấn lại biến áp đúng thông số hoặc phân vùng loa hợp lý —
+              thay vì thay loa một cách cảm tính.
             </p>
           </header>
 
@@ -510,82 +547,90 @@ export function Home() {
       </section>
 
       {/* 6. FINAL CTA */}
+      {/* 6. FINAL CTA */}
       <section
         className="py-32 bg-white"
-        aria-labelledby="kiem-tra-dien-nha-xuong"
+        aria-labelledby="tu-van-he-thong-truyen-thanh"
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
           <article className="bg-slate-950 rounded-[3rem] p-12 md:p-24 text-white relative overflow-hidden shadow-2xl text-center">
 
             <header className="relative z-10">
+
               <h2
-                id="kiem-tra-dien-nha-xuong"
-                className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter"
+                id="tu-van-he-thong-truyen-thanh"
+                className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter leading-tight"
               >
-                Máy chạy yếu? Motor nóng? Nhảy aptomat?
+                Loa rè? Amply nóng? Âm thanh nhỏ dần cuối tuyến?
               </h2>
 
               <p className="text-xl text-slate-300 mb-6 max-w-2xl mx-auto font-medium leading-relaxed">
-                Chỉ cần gửi hình đồng hồ đo điện hoặc mô tả hiện tượng máy đang gặp
-                kỹ sư sẽ xác định có phải do sụt áp, lệch pha hay thiếu nguồn hay không.
+                Gửi tổng công suất loa, số lượng loa và chiều dài dây.
+                Chúng tôi sẽ kiểm tra và đề xuất <strong>amply hoặc biến áp phù hợp</strong>
+                với hệ thống 70V / 100V của bạn.
               </p>
 
               <p className="text-sm text-slate-400 mb-12 max-w-xl mx-auto">
-                Không cần mua thiết bị. Phân tích giúp bạn trước khi sửa chữa hoặc thay máy.
+                Tránh thay sai thiết bị – tối ưu đồng bộ amply và biến áp ngay từ đầu.
               </p>
 
-              {/* ====== TECHNICAL CONTEXT (SEO GOLD - invisible UI) ====== */}
-              <div className="sr-only" aria-hidden="false">
-                Công cụ phân tích điện áp nhà xưởng dựa trên công thức sụt áp 3 pha:
-
-                ΔU = √3 × I × (R cosφ + X sinφ) × L
-
-                Áp dụng cho động cơ công nghiệp, máy CNC, máy ép nhựa và hệ thống sản xuất.
-                Phân tích nguyên nhân điện yếu gồm:
-                - Sụt áp đường dây do tiết diện dây nhỏ
-                - Quá dòng khởi động motor
-                - Nguồn cấp không đủ công suất
-                - Mất cân bằng pha
+              {/* SEO CONTEXT (Ẩn giao diện) */}
+              <div className="sr-only">
+                Nhà sản xuất amply truyền thanh 70V 100V và biến áp loa.
+                Thiết kế theo tổng công suất hệ thống, phân vùng loa, chiều dài dây dẫn.
+                Phân tích lỗi hệ thống truyền thanh gồm sụt áp, quá tải công suất,
+                méo tiếng và quá nhiệt amply.
               </div>
 
             </header>
 
-            {/* CTA */}
-            <div className="relative z-10 space-y-4">
+            {/* CTA BUTTON */}
+            <div className="relative z-10 space-y-6">
 
               <Link
                 to="/gui-thong-so"
                 className="inline-flex px-12 py-6 bg-accent text-white rounded-xl font-black text-xl hover:brightness-110 transition-all shadow-2xl shadow-orange-900/40 uppercase tracking-tight"
-                aria-label="Gửi thông số điện nhà xưởng để kỹ sư kiểm tra"
+                aria-label="Gửi thông số hệ thống truyền thanh để tư vấn amply và biến áp"
               >
-                GỬI HIỆN TƯỢNG MÁY ĐANG GẶP
+                GỬI CẤU HÌNH HỆ THỐNG
               </Link>
 
               <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-                Không cần mua thiết bị • Không tính phí tư vấn • Phản hồi 5–15 phút
+                Tư vấn miễn phí • Phản hồi nhanh • Đề xuất đúng công suất
               </p>
 
-              {/* ===== INTERNAL KNOWLEDGE LINKS (TOPICAL AUTHORITY) ===== */}
-              <nav
-                aria-label="Kiến thức liên quan điện yếu nhà xưởng"
-                className="text-xs text-slate-400 pt-8 border-t border-white/10"
-              >
-                <span className="block mb-2 text-white/60 uppercase tracking-widest">
-                  Kiến thức liên quan
-                </span>
+              {/* CAM KẾT BÁN HÀNG */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8 border-t border-white/10">
 
-                <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-                  <Link to="/kien-thuc/sut-ap-la-gi">Sụt áp đường dây là gì</Link>
-                  <Link to="/kien-thuc/dong-khoi-dong-dong-co">Dòng khởi động động cơ</Link>
-                  <Link to="/kien-thuc/chon-cong-suat-bien-ap">Cách chọn công suất biến áp</Link>
-                  <Link to="/kien-thuc/mat-can-bang-pha">Điện 3 pha bị lệch dòng (mất cân bằng pha)</Link>
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                  <p className="text-xs font-bold uppercase">
+                    Sản xuất amply 70V / 100V
+                  </p>
                 </div>
-              </nav>
+
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                  <p className="text-xs font-bold uppercase">
+                    Quấn biến áp theo công suất thực tế
+                  </p>
+                </div>
+
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                  <p className="text-xs font-bold uppercase">
+                    Bảo hành trọn đời – hỗ trợ sửa chữa
+                  </p>
+                </div>
+
+              </div>
+
+
 
             </div>
 
-            <Zap className="absolute -right-20 -bottom-20 h-96 w-96 text-white/5 rotate-12" aria-hidden="true" />
+            <Zap
+              className="absolute -right-20 -bottom-20 h-96 w-96 text-white/5 rotate-12"
+              aria-hidden="true"
+            />
 
           </article>
         </div>

@@ -16,9 +16,17 @@ export const TELEPHONE = `+84787158552`;
 
 export const TELEPHONE_TEXT = `+84-787-158-552`;
 
+
+export const YOUR_SERVICE_ID = `service_n77ifaf`;
+
+export const YOUR_TEMPLATE_ID = `template_6m0an9h`;
+
+export const YOUR_PUBLIC_KEY = `sG085S_99DNY4bmCs`;
+
+
 export const ADDRESS = `Số 15 phố Khương Hạ, phường Khương Đình, quận Thanh Xuân, Hà Nội, Việt Nam`;
 
-export const EMAIL = `ntd15kh@gmail.com`;
+export const EMAIL = `bienthe.15kh@gmail.com`;
 
 export function JsonLd({ data }: { data: any }) { return (<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />); }
 

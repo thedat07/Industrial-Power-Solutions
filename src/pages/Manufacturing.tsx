@@ -219,45 +219,72 @@ export function Manufacturing() {
         </div>
       </section>
 
-      {/* ================= QC ================= */}
+      {/* ================= QUALITY CONTROL ================= */}
       <section className="bg-slate-50 py-32 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4">
-          <header className="mb-16">
-            <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">
-              Kiểm tra điện & âm thanh trước xuất xưởng
+
+          <header className="mb-20 text-center max-w-3xl mx-auto">
+            <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-6">
+              Quy trình kiểm tra amply & biến áp trước xuất xưởng
             </h2>
+
+            <p className="text-slate-600 text-lg font-medium leading-relaxed">
+              Mỗi sản phẩm đều được đo kiểm điện và âm thanh theo tiêu chuẩn nội bộ
+              nhằm đảm bảo vận hành ổn định trong hệ thống truyền thanh 70V / 100V.
+            </p>
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
             {[
               {
                 icon: Activity,
                 title: "Đo đáp tuyến tần số",
-                desc: "20Hz – 20kHz, kiểm tra suy hao bass & treble"
+                desc: "Kiểm tra dải 20Hz – 20kHz, đánh giá suy hao bass & treble khi ghép tải thực tế."
               },
               {
                 icon: Volume2,
-                title: "Kiểm tra nhiễu & ù nền",
-                desc: "Đảm bảo không hum khi lắp vào ampli"
+                title: "Kiểm tra nhiễu & ù nền 50Hz",
+                desc: "Đảm bảo không xuất hiện hum khi kết nối với amply truyền thanh."
               },
               {
                 icon: Thermometer,
-                title: "Test tải liên tục",
-                desc: "Hoạt động 24h ở công suất danh định"
+                title: "Test tải công suất liên tục",
+                desc: "Vận hành 24h ở công suất danh định để kiểm tra độ ổn định và nhiệt độ."
               },
               {
                 icon: ShieldCheck,
                 title: "Thử cách điện cao áp",
-                desc: "2.5kV – 5kV giữa các lớp cuộn"
+                desc: "Kiểm tra cách điện 2.5kV – 5kV giữa các lớp cuộn, đảm bảo an toàn lâu dài."
               }
             ].map((item, i) => (
-              <article key={i} className="p-8 bg-white rounded-3xl border border-slate-200">
-                <item.icon className="h-8 w-8 text-accent mb-6" />
-                <h3 className="font-black text-slate-900 mb-3">{item.title}</h3>
-                <p className="text-sm text-slate-500">{item.desc}</p>
+              <article
+                key={i}
+                className="p-10 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all"
+              >
+                <item.icon className="h-10 w-10 text-accent mb-6" />
+                <h3 className="font-black text-slate-900 text-lg mb-3 uppercase tracking-wide">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {item.desc}
+                </p>
               </article>
             ))}
+
           </div>
+
+          {/* CHỐT UY TÍN */}
+          <div className="mt-20 text-center max-w-3xl mx-auto">
+            <p className="text-slate-900 font-bold text-lg">
+              Chỉ những amply và biến áp đạt đầy đủ tiêu chuẩn mới được xuất xưởng.
+            </p>
+
+            <p className="text-slate-500 mt-3">
+              Cam kết bảo hành trọn đời và hỗ trợ sửa chữa khi cần.
+            </p>
+          </div>
+
         </div>
       </section>
 

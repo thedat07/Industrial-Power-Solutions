@@ -1,46 +1,71 @@
 import React from 'react';
 import { Mail, Phone, Building2, Upload, Send, CheckCircle2, AlertCircle, Zap } from 'lucide-react';
-import { ADDRESS, BASE_URL, buildGraph, EMAIL, JsonLd, NAME_INFO, ORG_ID, pageSchema, rootSchema, TELEPHONE, TELEPHONE_TEXT } from '../components/SEO';
+import { ADDRESS, BASE_URL, buildGraph, EMAIL, JsonLd, NAME_INFO, ORG_ID, pageSchema, rootSchema, TELEPHONE, TELEPHONE_TEXT, YOUR_PUBLIC_KEY, YOUR_TEMPLATE_ID, YOUR_SERVICE_ID } from '../components/SEO';
+import emailjs from '@emailjs/browser';
 
 export function LeadForm() {
   const [status, setStatus] = React.useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [formData, setFormData] = React.useState({
+
+  const initialFormState = {
     company_name: '',
     phone: '',
     email: '',
+    speaker_quantity: '',
+    speaker_power: '',
+    line_length: '',
     load_description: '',
-    voltage_in: '',
-    voltage_out: '',
-    kva: '',
-    application: '',
-  });
+  };
 
-  const url = `${BASE_URL}/tinh-cong-suat`;
+  const [formData, setFormData] = React.useState(initialFormState);
+
+  const url = `${BASE_URL}/gui-thong-so`;
 
   /* ================= SERVICE ================= */
 
   const service = {
     "@type": "Service",
     "@id": `${url}#service`,
-    "name": "Tính công suất và chọn máy biến áp công nghiệp",
+    "name": "Tư vấn chọn biến áp âm ly 70V – 100V line",
     "provider": { "@id": ORG_ID },
     "areaServed": {
       "@type": "Country",
       "name": "Vietnam"
     },
-    "serviceType": "Electrical Engineering Consulting",
+    "serviceType": "Tư vấn cấu hình biến áp cho hệ thống âm thanh công cộng",
     "description":
-      "Phân tích phụ tải, sụt áp, chọn kVA và cấu hình máy biến áp hoặc ổn áp công nghiệp theo tiêu chuẩn IEC/TCVN"
+      "Phân tích tổng công suất loa, chiều dài tuyến dây và dự phòng tải để đề xuất công suất kVA phù hợp cho biến áp âm ly 70V – 100V line.",
+    "audience": {
+      "@type": "Audience",
+      "audienceType":
+        "Đơn vị tích hợp hệ thống PA, công ty thiết bị âm thanh dự án, kỹ thuật viên lắp đặt"
+    }
   };
 
   /* ================= PAGE ================= */
 
   const webpage = {
-    ...pageSchema(url, `Tính công suất & chọn máy biến áp | ${NAME_INFO}`),
+    ...pageSchema(
+      url,
+      `Gửi thông số hệ thống để tư vấn chọn biến áp âm ly | ${NAME_INFO}`
+    ),
     "description":
-      `Gửi thông số tải điện để kỹ sư ${NAME_INFO} phân tích phụ tải, tính kVA và đề xuất cấu hình máy biến áp phù hợp.`,
-    "mainEntity": { "@id": `${url}#service` }
+      `Gửi số lượng loa, tổng công suất, chiều dài tuyến dây và yêu cầu hệ thống để ${NAME_INFO} phân tích và đề xuất cấu hình biến áp âm ly 70V – 100V line phù hợp.`,
+    "mainEntity": { "@id": `${url}#service` },
+    "about": {
+      "@type": "Thing",
+      "name": "Biến áp âm ly 100V line cho hệ thống PA"
+    },
+    "potentialAction": {
+      "@type": "ContactAction",
+      "name": "Gửi thông số hệ thống",
+      "target": url,
+      "description":
+        "Khách hàng gửi thông tin hệ thống để được kỹ sư phân tích và đề xuất cấu hình biến áp phù hợp."
+    },
+    "keywords":
+      "biến áp âm ly 100V, gửi thông số hệ thống PA, tư vấn chọn kVA biến áp, biến áp loa truyền thanh"
   };
+
 
   /* ================= FINAL GRAPH ================= */
 
@@ -52,17 +77,37 @@ export function LeadForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('submitting');
+    if (status === "submitting") return;
+
+    if (!formData.company_name || !formData.phone) {
+      alert("Vui lòng nhập đầy đủ thông tin bắt buộc.");
+      return;
+    }
+
+    setStatus("submitting");
+
     try {
-      const res = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      if (res.ok) setStatus('success');
-      else setStatus('error');
-    } catch {
-      setStatus('error');
+      await emailjs.send(
+        YOUR_SERVICE_ID,
+        YOUR_TEMPLATE_ID,
+        {
+          company_name: formData.company_name,
+          phone: formData.phone,
+          email: formData.email || "Không cung cấp",
+          speaker_quantity: formData.speaker_quantity || "Không rõ",
+          speaker_power: formData.speaker_power || "Không rõ",
+          line_length: formData.line_length || "Không rõ",
+          load_description: formData.load_description || "Không có mô tả",
+          submit_time: new Date().toLocaleString("vi-VN"),
+        },
+        YOUR_PUBLIC_KEY
+      );
+
+      setStatus("success");
+      setFormData(initialFormState);
+    } catch (error) {
+      console.error("EmailJS error:", error);
+      setStatus("error");
     }
   };
 
@@ -76,11 +121,12 @@ export function LeadForm() {
           </div>
 
           <h1 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tight">
-            Đã nhận thông số tải điện
+            Đã nhận thông số hệ thống
           </h1>
 
           <p className="text-lg text-slate-600 mb-6 font-medium leading-relaxed">
-            Kỹ sư điện {NAME_INFO} đang phân tích công suất, dòng tải và điện áp hệ thống của bạn để lựa chọn đúng máy biến áp hoặc ổn áp công nghiệp.
+            Đội ngũ kỹ sư {NAME_INFO} đang phân tích công suất và cấu hình hệ thống
+            để đề xuất biến áp âm ly phù hợp, đảm bảo hoạt động ổn định và đúng tải.
           </p>
 
           <p className="text-slate-500 mb-12">
@@ -90,12 +136,12 @@ export function LeadForm() {
 
         {/* SEO INTERNAL LINKS */}
         <nav className="space-y-4 mb-16">
-          <a href="/san-pham/may-bien-ap-3-pha" className="block text-accent font-bold hover:underline">
-            Xem các dòng máy biến áp 3 pha
+          <a href="/san-pham/bien-ap-am-ly" className="block text-accent font-bold hover:underline">
+            Xem các dòng biến áp âm ly
           </a>
 
-          <a href="/kien-thuc" className="block text-accent font-bold hover:underline">
-            Hướng dẫn chọn công suất máy biến áp
+          <a href="/kien-thuc/tinh-cong-suat" className="block text-accent font-bold hover:underline">
+            Hướng dẫn chọn công suất biến áp âm ly
           </a>
         </nav>
 
@@ -105,7 +151,6 @@ export function LeadForm() {
         >
           Gửi yêu cầu khác
         </button>
-
       </main>
     );
   }
@@ -118,18 +163,18 @@ export function LeadForm() {
           <header className="max-w-4xl">
 
             <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-8 uppercase tracking-tight leading-tight">
-              Gửi thông số để tính công suất & báo giá máy biến áp
+              Gửi thông số để tính công suất & báo giá biến áp âm ly
             </h1>
 
             <p className="text-xl text-slate-700 font-medium leading-relaxed">
-              Điền điện áp đầu vào, điện áp đầu ra, công suất tải hoặc mô tả hệ thống điện.
-              Kỹ sư {NAME_INFO} sẽ tính toán kVA phù hợp, kiểm tra sụt áp và đề xuất cấu hình thiết bị
-              theo tiêu chuẩn IEC/TCVN cho nhà xưởng hoặc dây chuyền sản xuất của bạn.
+              Điền tổng công suất loa, số lượng thiết bị, chiều dài tuyến dây hoặc mô tả hệ thống âm thanh.
+              Kỹ sư {NAME_INFO} sẽ tính toán công suất phù hợp, kiểm tra khả năng chịu tải
+              và đề xuất cấu hình biến áp âm ly đảm bảo hoạt động ổn định, không quá tải.
             </p>
 
             <p className="mt-6 text-base text-slate-500 leading-relaxed">
-              Áp dụng cho: máy CNC, máy ép nhựa, máy hàn, robot, thang máy, trạm sạc xe điện,
-              hệ thống chiếu sáng và toàn bộ phụ tải công nghiệp.
+              Áp dụng cho: hệ thống loa truyền thanh, âm thanh thông báo nhà xưởng,
+              trường học, bệnh viện, khu công nghiệp và các hệ thống âm thanh công cộng diện rộng.
             </p>
 
           </header>
@@ -169,41 +214,40 @@ export function LeadForm() {
                 </div>
                 <div>
                   <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">
-                    Email nhận hồ sơ kỹ thuật
+                    Email tiếp nhận thông số hệ thống
                   </h3>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(EMAIL);
-                      alert("Đã copy email!");
+                      alert("Đã sao chép email!");
                     }}
                     className="text-2xl font-black text-slate-900 tracking-tight hover:text-accent transition-colors"
                   >
                     {EMAIL}
                   </button>
                   <p className="text-xs text-slate-400 font-bold uppercase mt-1">
-                    Phản hồi trong 2 giờ làm việc
+                    Phản hồi kỹ thuật trong 2 giờ làm việc
                   </p>
                 </div>
               </div>
 
-              {/* FACTORY */}
+              {/* CƠ SỞ SẢN XUẤT */}
               <div className="flex gap-6 items-start">
                 <div className="p-4 bg-white rounded-2xl text-accent shadow-lg border border-slate-100 shrink-0">
                   <Building2 className="h-8 w-8" />
                 </div>
                 <div>
                   <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">
-                    Nhà máy sản xuất & bảo hành
+                    Cơ sở sản xuất & bảo hành biến áp âm ly
                   </h3>
                   <p className="text-lg font-black text-slate-900 leading-tight">
                     {ADDRESS}
                   </p>
                   <p className="text-xs text-slate-400 font-bold uppercase mt-1">
-                    Có sẵn linh kiện & đội bảo trì tại chỗ
+                    Sẵn linh kiện thay thế & hỗ trợ kỹ thuật nhanh chóng
                   </p>
                 </div>
               </div>
-
             </div>
 
             {/* REQUIREMENTS GUIDE */}
@@ -211,33 +255,33 @@ export function LeadForm() {
 
               <h4 className="text-accent font-black uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
                 <AlertCircle className="h-5 w-5" />
-                Hồ sơ cần gửi để báo giá chính xác
+                Thông tin cần gửi để báo giá chính xác
               </h4>
 
               <p className="text-sm text-slate-300 mb-6 font-medium">
-                Cung cấp càng đầy đủ → báo giá càng nhanh & đúng công suất (tránh chọn sai gây sụt áp / quá tải).
+                Cung cấp càng đầy đủ → tính công suất càng chính xác, tránh chọn sai gây méo tiếng hoặc quá tải hệ thống.
               </p>
 
               <ul className="text-sm text-slate-300 space-y-4 font-medium">
 
                 <li className="flex gap-3">
                   <div className="w-1.5 h-1.5 bg-accent rounded-full mt-2 shrink-0"></div>
-                  Ảnh tem nhãn (Nameplate) máy biến áp hoặc ổn áp hiện tại
+                  Tổng số lượng loa và công suất mỗi loa (W)
                 </li>
 
                 <li className="flex gap-3">
                   <div className="w-1.5 h-1.5 bg-accent rounded-full mt-2 shrink-0"></div>
-                  Sơ đồ đơn tuyến / bản vẽ tủ điện tổng (PDF hoặc CAD)
+                  Sơ đồ đấu nối hoặc mô tả cách đi dây hệ thống
                 </li>
 
                 <li className="flex gap-3">
                   <div className="w-1.5 h-1.5 bg-accent rounded-full mt-2 shrink-0"></div>
-                  Hiện tượng đang gặp: sụt áp, nhảy CB, nhiễu PLC, lỗi biến tần
+                  Chiều dài tuyến dây chính và khoảng cách xa nhất
                 </li>
 
                 <li className="flex gap-3">
                   <div className="w-1.5 h-1.5 bg-accent rounded-full mt-2 shrink-0"></div>
-                  Công suất tải dự kiến (kW / kVA) hoặc loại máy sử dụng
+                  Hiện tượng đang gặp (âm nhỏ, méo tiếng, quá nhiệt, cháy biến áp cũ...)
                 </li>
 
               </ul>
@@ -256,7 +300,7 @@ export function LeadForm() {
 
                   <div className="space-y-2">
                     <label htmlFor="company_name" className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
-                      Tên công ty / Nhà máy *
+                      Tên đơn vị / Công trình *
                     </label>
 
                     <input
@@ -268,7 +312,7 @@ export function LeadForm() {
                       value={formData.company_name}
                       onChange={e => setFormData({ ...formData, company_name: e.target.value })}
                       className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
-                      placeholder="Công ty TNHH ABC"
+                      placeholder="UBND xã A / Trường THPT B / Khu công nghiệp C"
                     />
                   </div>
 
@@ -286,7 +330,7 @@ export function LeadForm() {
                       value={formData.phone}
                       onChange={e => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
-                      placeholder={`tel:${TELEPHONE}`}
+                      placeholder="090xxxxxxx"
                     />
                   </div>
                 </div>
@@ -305,83 +349,67 @@ export function LeadForm() {
                     value={formData.email}
                     onChange={e => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
-                    placeholder="kythuat@factory.com"
+                    placeholder="kythuat@donvi.vn"
                   />
                 </div>
 
-                {/* APPLICATION + KVA */}
+                {/* SYSTEM INFO */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                   <div className="space-y-2">
-                    <label htmlFor="application" className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
-                      Ứng dụng / Dây chuyền
+                    <label htmlFor="speaker_quantity" className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
+                      Số lượng loa
                     </label>
 
                     <input
-                      id="application"
-                      name="application"
-                      value={formData.application}
-                      onChange={e => setFormData({ ...formData, application: e.target.value })}
+                      id="speaker_quantity"
+                      name="speaker_quantity"
+                      inputMode="numeric"
+                      value={formData.speaker_quantity}
+                      onChange={e => setFormData({ ...formData, speaker_quantity: e.target.value })}
                       className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
-                      placeholder="Máy CNC, Lò nhiệt, Solar, Trạm sạc EV..."
+                      placeholder="20 / 45 / 120..."
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="kva" className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
-                      Công suất dự kiến (kVA)
+                    <label htmlFor="speaker_power" className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
+                      Công suất mỗi loa (W)
                     </label>
 
                     <input
-                      id="kva"
-                      name="kva"
+                      id="speaker_power"
+                      name="speaker_power"
                       inputMode="numeric"
-                      value={formData.kva}
-                      onChange={e => setFormData({ ...formData, kva: e.target.value })}
+                      value={formData.speaker_power}
+                      onChange={e => setFormData({ ...formData, speaker_power: e.target.value })}
                       className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
-                      placeholder="75 / 160 / 560..."
+                      placeholder="10W / 20W / 30W..."
                     />
                   </div>
                 </div>
 
-                {/* VOLTAGE */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* LINE LENGTH */}
+                <div className="space-y-2">
+                  <label htmlFor="line_length" className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
+                    Chiều dài tuyến dây chính (m)
+                  </label>
 
-                  <div className="space-y-2">
-                    <label htmlFor="voltage_in" className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
-                      Điện áp vào
-                    </label>
-
-                    <input
-                      id="voltage_in"
-                      name="voltage_in"
-                      value={formData.voltage_in}
-                      onChange={e => setFormData({ ...formData, voltage_in: e.target.value })}
-                      className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
-                      placeholder="22kV / 380V"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="voltage_out" className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
-                      Điện áp ra
-                    </label>
-
-                    <input
-                      id="voltage_out"
-                      name="voltage_out"
-                      value={formData.voltage_out}
-                      onChange={e => setFormData({ ...formData, voltage_out: e.target.value })}
-                      className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
-                      placeholder="200V / 220V / 400V"
-                    />
-                  </div>
+                  <input
+                    id="line_length"
+                    name="line_length"
+                    inputMode="numeric"
+                    value={formData.line_length}
+                    onChange={e => setFormData({ ...formData, line_length: e.target.value })}
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
+                    placeholder="300m / 800m / 1500m..."
+                  />
                 </div>
 
                 {/* DESCRIPTION */}
                 <div className="space-y-2">
                   <label htmlFor="load_description" className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
-                    Mô tả sự cố / yêu cầu
+                    Mô tả hệ thống / sự cố (nếu có)
                   </label>
 
                   <textarea
@@ -391,7 +419,7 @@ export function LeadForm() {
                     value={formData.load_description}
                     onChange={e => setFormData({ ...formData, load_description: e.target.value })}
                     className="w-full px-6 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-accent outline-none font-semibold"
-                    placeholder="Máy CNC bị reset khi khởi động spindle..."
+                    placeholder="Âm nhỏ ở cuối tuyến, biến áp cũ hay quá nhiệt..."
                   />
                 </div>
 
@@ -402,8 +430,8 @@ export function LeadForm() {
                   className="w-full py-6 bg-accent text-white rounded-2xl font-black text-lg uppercase tracking-wider hover:brightness-110 transition-all shadow-2xl disabled:opacity-50"
                 >
                   {status === 'submitting'
-                    ? 'Đang phân tích thông số...'
-                    : 'Nhận giải pháp & báo giá trong 2 giờ'}
+                    ? 'Đang tính công suất hệ thống...'
+                    : 'Nhận cấu hình & báo giá trong 2 giờ'}
                 </button>
 
                 {status === 'error' && (
@@ -411,7 +439,6 @@ export function LeadForm() {
                     Không gửi được yêu cầu. Vui lòng thử lại hoặc gọi hotline kỹ thuật.
                   </p>
                 )}
-
               </form>
             </div>
           </div>
